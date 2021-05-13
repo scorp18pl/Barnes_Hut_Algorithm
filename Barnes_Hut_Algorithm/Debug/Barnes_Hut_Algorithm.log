@@ -1,0 +1,4 @@
+﻿  Simulation.cpp
+LINK : warning LNK4075: zignorowano opcję „/INCREMENTAL” z powodu określenia opcji „/PROFILE”
+Entity.obj : warning LNK4075: zignorowano opcję „/EDITANDCONTINUE” z powodu określenia opcji „/OPT:REF”
+  Barnes_Hut_Algorithm.vcxproj -> C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Debug\Barnes_Hut_Algorithm.exe
