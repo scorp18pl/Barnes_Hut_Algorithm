@@ -31,10 +31,15 @@ private:
 	void setChildToNull(Quadrant quadrant);
 	
 	bool isEmpty();
+
 	bool hasNoChildren();
+	bool otherAreNull(Quadrant quadrant);
+	bool hasOnlyOneChild();
+
 	bool outOfReach(sf::Vector2f position);
 	bool isInside(CircGravEntity *entity);
 	bool isEntityInside();
+	bool isSimplest();
 
 	Quadrant checkQuadrant(sf::Vector2f position);
 public:

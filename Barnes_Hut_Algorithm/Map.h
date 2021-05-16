@@ -11,7 +11,7 @@ public:
 	sf::Vector2f getStartingPosition();
 	sf::Vector2f getEndingPosition();
 
-	Map(float side = 1e5f);
+	Map(float side = 1e6f);
 	Map(sf::Vector2f starting_pos, sf::Vector2f ending_pos);
 };
 

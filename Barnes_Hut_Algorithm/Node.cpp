@@ -29,6 +29,33 @@ inline bool Node::hasNoChildren() {
 	return north_west == north_east && south_west == south_east;
 }
 
+//Returns whether or not quadtrant is the only
+//child of the node.
+bool Node::otherAreNull(Quadrant quadrant) {
+	switch (quadrant) {
+		case Quadrant::NORTH_WEST:
+			return north_east == south_west && south_east == nullptr;
+		case Quadrant::NORTH_EAST:
+			return north_west == south_west && south_east == nullptr;
+		case Quadrant::SOUTH_WEST:
+			return north_east == north_west && south_east == nullptr;
+		case Quadrant::SOUTH_EAST:
+			return north_west == north_east && south_west == nullptr;
+		default:
+			std::cout << "Invalid quadrant in otherAreNull" << std::endl;
+			exit(1);
+	}
+}
+
+//Returns whether or not the node has only a one child.
+bool Node::hasOnlyOneChild() {
+	bool has_one_child = otherAreNull(Quadrant::NORTH_WEST);
+	has_one_child = has_one_child || otherAreNull(Quadrant::NORTH_EAST);
+	has_one_child = has_one_child || otherAreNull(Quadrant::SOUTH_WEST);
+	has_one_child = has_one_child || otherAreNull(Quadrant::SOUTH_EAST);
+	return has_one_child;
+}
+
 bool Node::outOfReach(sf::Vector2f position) {
 	bool out_of_reach;
 
@@ -50,6 +77,15 @@ bool Node::isInside(CircGravEntity *entity) {
 bool Node::isEntityInside() {
 	assert(!isEmpty());
 	return isInside(this->entity);
+}
+
+//Returns whether or not a leaf node should be deleted
+//and the entity moved up the tree.
+bool Node::isSimplest() {
+	if (this->parent == nullptr)
+		return true;
+
+	return !this->parent->hasOnlyOneChild();
 }
 
 //Returns the quadrant in which given position is
@@ -80,20 +116,24 @@ Quadrant Node::checkQuadrant(sf::Vector2f position) {
 }
 
 void Node::update() {
-	if (this == nullptr)
-		return;
-
-	this->north_west->update();
-	this->north_east->update();
-	this->south_west->update();
-	this->south_east->update();
-
-	if (isEmpty() || isEntityInside())
+	if (isEmpty() || (isEntityInside() && isSimplest()))
 		return;
 
 	CircGravEntity *temp_entity = this->entity;
 	this->parent->moveUp(temp_entity, this->position, true);
 	delete this;
+
+	if (this->north_west != nullptr)
+		this->north_west->update();
+
+	if (this->north_east != nullptr)
+		this->north_east->update();
+
+	if (this->south_west != nullptr)
+		this->south_west->update();
+
+	if (this->south_east != nullptr)
+		this->south_east->update();
 }
 
 void Node::pushQ(CircGravEntity *entity, Quadrant q) {
@@ -157,7 +197,7 @@ void Node::moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_
 	if (set_to_nullptr)
 		setChildToNull(checkQuadrant(child_position));
 
-	if (isInside(entity)) {
+	if (isInside(entity) && isSimplest()) {
 		this->push(entity);
 		return;
 	}
