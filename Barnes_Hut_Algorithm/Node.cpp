@@ -1,73 +1,71 @@
 #include "Node.h"
+#include <cassert>
 
-QuadTree::QuadTree() {
-	tree = nullptr;
-}
-
-QuadTree::QuadTree(sf::Vector2f position, float side_length) {
-	std::cout << "QuadTree : " << position.x << " " << position.y << " - " << side_length << std::endl;
-	this->tree = new Node(position, side_length);
-}
-
-QuadTree::~QuadTree() {
-	delete tree;
-}
-
-Node *QuadTree::getTree() {
-	return tree;
-}
-
-void QuadTree::build(CircGravEntity entities[], size_t size) {
-	for (size_t i = 0; i < size; i++) {
-		this->tree->push(entities + i);
-		std::cout << entities[i].getPosition().x << " " << entities[i].getPosition().y << std::endl;
+void Node::setChildToNull(Quadrant quadrant) {
+	switch (quadrant) {
+		case Quadrant::NORTH_WEST:
+			this->north_west = nullptr;
+			break;
+		case Quadrant::NORTH_EAST:
+			this->north_east = nullptr;
+			break;
+		case Quadrant::SOUTH_WEST:
+			this->south_west = nullptr;
+			break;
+		case Quadrant::SOUTH_EAST:
+			this->south_east = nullptr;
+			break;
+		default:
+			std::cout << "Invalid quadrant in setChildNull" << std::endl;
+			exit(1);
 	}
 }
 
-void QuadTree::draw(sf::RenderWindow *window) {
-	if (tree != nullptr)
-		tree->draw(window);
-}
-
-bool Node::isEmpty() {
-	std::cout << "isempty : " << (int)(entity == nullptr) << std::endl;
+inline bool Node::isEmpty() {
 	return entity == nullptr;
 }
 
-bool Node::hasNoChildren() {
-	std::cout << "hasnochildren : " << (int)(north_west == north_east && south_west == south_east) << std::endl;
+inline bool Node::hasNoChildren() {
 	return north_west == north_east && south_west == south_east;
 }
 
-Quadrant Node::checkQuadrant(CircGravEntity* entity) {
-	if (entity == nullptr)
-		return Quadrant::ERROR;
+bool Node::outOfReach(sf::Vector2f position) {
+	bool out_of_reach;
 
-	if (side_length == 0.f)
+	out_of_reach = position.x < this->position.x;
+	out_of_reach = out_of_reach || position.y < this->position.y;
+
+	out_of_reach = out_of_reach || position.x > this->position.x + side_length;
+	out_of_reach = out_of_reach || position.y > this->position.y + side_length;
+
+	return out_of_reach;
+}
+
+//Returns whether or not given entity is contained
+//within the bounds of the node.
+bool Node::isInside(CircGravEntity *entity) {
+	return !outOfReach(entity->getPosition());
+}
+
+bool Node::isEntityInside() {
+	assert(!isEmpty());
+	return isInside(this->entity);
+}
+
+//Returns the quadrant in which given position is
+//situated. Considered quadrants' coordinate intervals
+//are in the form [a, b) and [b, c] (for each).
+Quadrant Node::checkQuadrant(sf::Vector2f position) {
+	if (side_length == 0.0f)
 		exit(1);
 
-	sf::Vector2f position;
-	position = entity->getPosition();
-
-	std::cout << "Check q: " << this->position.x << " " << this->position.y << std::endl;
-
-	{
-		bool out_of_reach;
-
-		out_of_reach = position.x < this->position.x;
-		out_of_reach = out_of_reach || position.y < this->position.y;
-
-		out_of_reach = out_of_reach || position.x > this->position.x + side_length;
-		out_of_reach = out_of_reach || position.y > this->position.y + side_length;
-
-		if (out_of_reach)
-			return Quadrant::ERROR;
-	}
+	if (outOfReach(position))
+		return Quadrant::ERROR;
 
 	bool x_less, y_less;
 
-	x_less = position.x < this->position.x + side_length / 2.f;
-	y_less = position.y < this->position.y + side_length / 2.f;
+	x_less = position.x < this->position.x + side_length / 2.0f;
+	y_less = position.y < this->position.y + side_length / 2.0f;
 
 	if (x_less)
 		if (y_less)
@@ -81,9 +79,26 @@ Quadrant Node::checkQuadrant(CircGravEntity* entity) {
 	return Quadrant::SOUTH_EAST;
 }
 
+void Node::update() {
+	if (this == nullptr)
+		return;
+
+	this->north_west->update();
+	this->north_east->update();
+	this->south_west->update();
+	this->south_east->update();
+
+	if (isEmpty() || isEntityInside())
+		return;
+
+	CircGravEntity *temp_entity = this->entity;
+	this->parent->moveUp(temp_entity, this->position, true);
+	delete this;
+}
+
 void Node::pushQ(CircGravEntity *entity, Quadrant q) {
 	sf::Vector2f position = this->position;
-	float side_length = this->side_length / 2.f;
+	float side_length = this->side_length / 2.0f;
 
 	Node **n;
 
@@ -113,18 +128,13 @@ void Node::pushQ(CircGravEntity *entity, Quadrant q) {
 	}
 
 	if (*n == nullptr)
-		*n = new Node(position, side_length);
+		*n = new Node(this, position, side_length);
 
 	(*n)->push(entity);
 }
 
 void Node::push(CircGravEntity *entity) {
-	std::cout << "Pushing" << std::endl;
-
-	if (entity == nullptr) {
-		std::cout << "Invalid entity pointer at push method." << std::endl;
-		return;
-	}
+	assert(entity != nullptr);
 	
 	mass += entity->getMass();
 
@@ -134,11 +144,28 @@ void Node::push(CircGravEntity *entity) {
 	}
 
 	if (this->hasNoChildren()) {
-		this->pushQ(this->entity, this->checkQuadrant(this->entity));
+		this->pushQ(this->entity, this->checkQuadrant(this->entity->getPosition()));
 		this->entity = nullptr;
 	}
 
-	this->pushQ(entity, this->checkQuadrant(entity));
+	this->pushQ(entity, this->checkQuadrant(entity->getPosition()));
+}
+
+//Recursively moves the entity up the quadtree until it
+//it is contained within the node.
+void Node::moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_to_nullptr) {
+	if (set_to_nullptr)
+		setChildToNull(checkQuadrant(child_position));
+
+	if (isInside(entity)) {
+		this->push(entity);
+		return;
+	}
+
+	parent->moveUp(entity, this->position, hasNoChildren());
+	
+	if (hasNoChildren())
+		delete this;
 }
 
 void Node::draw(sf::RenderWindow *window) {
@@ -153,8 +180,8 @@ void Node::draw(sf::RenderWindow *window) {
 	south_east->draw(window);
 }
 
-Node::Node(sf::Vector2f position, float side_length)
-	:position(position), side_length(side_length), mass(0.f), entity(nullptr) {
+Node::Node(Node *parent, sf::Vector2f position, float side_length)
+	:parent(parent), position(position), side_length(side_length), mass(0.f), entity(nullptr) {
 	
 	shape.setPosition(position);
 	shape.setSize(sf::Vector2f(side_length, side_length));
@@ -169,10 +196,38 @@ Node::Node(sf::Vector2f position, float side_length)
 }
 
 Node::~Node() {
-	std::cout << "node deleted" << std::endl;
-
 	delete north_west;
 	delete north_east;
 	delete south_west;
 	delete south_east;
+}
+
+QuadTree::QuadTree() {
+	tree = nullptr;
+}
+
+QuadTree::QuadTree(Node *parent, sf::Vector2f position, float side_length) {
+	this->tree = new Node(parent, position, side_length);
+}
+
+QuadTree::~QuadTree() {
+	delete tree;
+}
+
+Node *QuadTree::getTree() {
+	return tree;
+}
+
+void QuadTree::update() {
+	this->tree->update();
+}
+
+void QuadTree::build(CircGravEntity entities[], size_t size) {
+	for (size_t i = 0; i < size; i++)
+		this->tree->push(entities + i);
+}
+
+void QuadTree::draw(sf::RenderWindow *window) {
+	if (tree != nullptr)
+		tree->draw(window);
 }

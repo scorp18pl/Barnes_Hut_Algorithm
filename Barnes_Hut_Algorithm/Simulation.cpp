@@ -7,10 +7,10 @@ bool Simulation::isRunning() {
 void Simulation::generateEntities() {
 	for (size_t i = 0; i < ENTITY_COUNT; i++) {
 		sf::Vector2f position, velocity;
-		position.x = MyRandom::getRandomFloat(0.f, (float)window->getSize().x);
-		position.y = MyRandom::getRandomFloat(0.f, (float)window->getSize().y);
+		position.x = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().x);
+		position.y = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().y);
 
-		float v = 1.f;
+		float v = 0.01f;
 
 		velocity.x = MyRandom::getRandomFloat(-v, v);
 		velocity.y = MyRandom::getRandomFloat(-v, v);
@@ -21,37 +21,37 @@ void Simulation::generateEntities() {
 	}
 }
 
-sf::Vector2f Simulation::getSmallCoordinates() {
-	sf::Vector2f return_p = entities[0].getPosition();
-
-	for (size_t i = 0; i < ENTITY_COUNT; i++) {
-		sf::Vector2f curr_pos = entities[i].getPosition();
-		
-		if (curr_pos.x < return_p.x)
-			return_p.x = curr_pos.x;
-
-		if (curr_pos.y < return_p.y)
-			return_p.y = curr_pos.y;
-	}
-
-	return return_p;
-}
-
-sf::Vector2f Simulation::getBigCoordinates() {
-	sf::Vector2f return_p = entities[0].getPosition();
-
-	for (size_t i = 0; i < ENTITY_COUNT; i++) {
-		sf::Vector2f curr_pos = entities[i].getPosition();
-
-		if (curr_pos.x > return_p.x)
-			return_p.x = curr_pos.x;
-
-		if (curr_pos.y > return_p.y)
-			return_p.y = curr_pos.y;
-	}
-
-	return return_p;
-}
+//sf::Vector2f Simulation::getSmallCoordinates() {
+//	sf::Vector2f return_p = entities[0].getPosition();
+//
+//	for (size_t i = 0; i < ENTITY_COUNT; i++) {
+//		sf::Vector2f curr_pos = entities[i].getPosition();
+//		
+//		if (curr_pos.x < return_p.x)
+//			return_p.x = curr_pos.x;
+//
+//		if (curr_pos.y < return_p.y)
+//			return_p.y = curr_pos.y;
+//	}
+//
+//	return return_p;
+//}
+//
+//sf::Vector2f Simulation::getBigCoordinates() {
+//	sf::Vector2f return_p = entities[0].getPosition();
+//
+//	for (size_t i = 0; i < ENTITY_COUNT; i++) {
+//		sf::Vector2f curr_pos = entities[i].getPosition();
+//
+//		if (curr_pos.x > return_p.x)
+//			return_p.x = curr_pos.x;
+//
+//		if (curr_pos.y > return_p.y)
+//			return_p.y = curr_pos.y;
+//	}
+//
+//	return return_p;
+//}
 
 void Simulation::pollEvents() {
 	sf::Event event;
@@ -67,17 +67,7 @@ void Simulation::pollEvents() {
 void Simulation::update() {
 	pollEvents();
 
-	delete this->quad_tree;
-
-	sf::Vector2f small_pos, bigg_pos;
-	small_pos = getSmallCoordinates();
-	bigg_pos = getBigCoordinates();
-
-	float side_length = std::max(bigg_pos.x - small_pos.x,
-								 bigg_pos.y - small_pos.y);
-
-	this->quad_tree = new QuadTree(small_pos, side_length);
-	this->quad_tree->build(entities, ENTITY_COUNT);
+	this->quad_tree->update();
 
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 		entities[i].update();
@@ -97,12 +87,13 @@ void Simulation::render() {
 Simulation::Simulation(size_t entity_count) 
 	:ENTITY_COUNT(entity_count) {
 
-	//Gravitational Entities Setup
-	entities = new CircGravEntity[ENTITY_COUNT];
+	this->entities = new CircGravEntity[ENTITY_COUNT];
+
+	this->quad_tree = new QuadTree(nullptr, this->map.getStartingPosition(), this->map.getSide());
 
 	//Window Setup
+	this->window = new sf::RenderWindow(sf::VideoMode(1280, 720), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 
-	window = new sf::RenderWindow(sf::VideoMode(1280, 720), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 }
 
 Simulation::~Simulation() {
@@ -112,6 +103,7 @@ Simulation::~Simulation() {
 
 void Simulation::start() {
 	generateEntities();
+	this->quad_tree->build(this->entities, this->ENTITY_COUNT);
 
 	while (isRunning()) {
 		update();

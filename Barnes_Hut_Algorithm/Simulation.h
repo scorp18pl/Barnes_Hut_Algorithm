@@ -4,11 +4,14 @@
 
 #include <algorithm>
 #include "MyRandom.h"
+#include "Map.h"
 #include "Entity.h"
 #include "Node.h"
 
 class Simulation {
 private:
+	Map map;
+
 	const size_t ENTITY_COUNT = 32;
 	CircGravEntity *entities;
 
@@ -17,8 +20,8 @@ private:
 	sf::RenderWindow* window;
 
 	void generateEntities();
-	sf::Vector2f getSmallCoordinates();
-	sf::Vector2f getBigCoordinates();
+	//sf::Vector2f getSmallCoordinates();
+	//sf::Vector2f getBigCoordinates();
 
 	void pollEvents();
 	void update();
