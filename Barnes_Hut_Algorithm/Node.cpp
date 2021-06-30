@@ -2,23 +2,12 @@
 #include <cassert>
 
 void Node::setChildToNull(Quadrant quadrant) {
-	switch (quadrant) {
-		case Quadrant::NORTH_WEST:
-			this->north_west = nullptr;
-			break;
-		case Quadrant::NORTH_EAST:
-			this->north_east = nullptr;
-			break;
-		case Quadrant::SOUTH_WEST:
-			this->south_west = nullptr;
-			break;
-		case Quadrant::SOUTH_EAST:
-			this->south_east = nullptr;
-			break;
-		default:
-			std::cout << "Invalid quadrant in setChildNull" << std::endl;
-			exit(1);
+	if (quadrant == Quadrant::ERROR) {
+		std::cout << "Invalid quadrant in setChildNull" << std::endl;
+		exit(1);
 	}
+
+	this->children[(int)quadrant] = nullptr;
 }
 
 inline bool Node::isEmpty() {
@@ -26,44 +15,39 @@ inline bool Node::isEmpty() {
 }
 
 inline bool Node::hasNoChildren() {
-	return north_west == north_east && south_west == south_east;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		if (this->children[i] != nullptr)
+			return false;
+	
+	return true;
 }
 
 //Returns whether or not quadtrant is the only
 //child of the node.
 bool Node::otherAreNull(Quadrant quadrant) {
-	switch (quadrant) {
-		case Quadrant::NORTH_WEST:
-			return north_east == south_west && south_east == nullptr;
-		case Quadrant::NORTH_EAST:
-			return north_west == south_west && south_east == nullptr;
-		case Quadrant::SOUTH_WEST:
-			return north_east == north_west && south_east == nullptr;
-		case Quadrant::SOUTH_EAST:
-			return north_west == north_east && south_west == nullptr;
-		default:
-			std::cout << "Invalid quadrant in otherAreNull" << std::endl;
-			exit(1);
-	}
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		if (this->children[i] != nullptr && i != (size_t)quadrant)
+			return false;
+
+	return true;
 }
 
 //Returns whether or not the node has only a one child.
 bool Node::hasOnlyOneChild() {
-	bool has_one_child = otherAreNull(Quadrant::NORTH_WEST);
-	has_one_child = has_one_child || otherAreNull(Quadrant::NORTH_EAST);
-	has_one_child = has_one_child || otherAreNull(Quadrant::SOUTH_WEST);
-	has_one_child = has_one_child || otherAreNull(Quadrant::SOUTH_EAST);
-	return has_one_child;
+	int children_count = 0;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		if (this->children[i] != nullptr)
+			children_count++;
+
+	return children_count == 1;
 }
 
 bool Node::outOfReach(sf::Vector2f position) {
-	bool out_of_reach;
-
-	out_of_reach = position.x < this->position.x;
+	bool out_of_reach = position.x < this->position.x;
 	out_of_reach = out_of_reach || position.y < this->position.y;
 
-	out_of_reach = out_of_reach || position.x > this->position.x + side_length;
-	out_of_reach = out_of_reach || position.y > this->position.y + side_length;
+	out_of_reach = out_of_reach || position.x >= this->position.x + this->side_length;
+	out_of_reach = out_of_reach || position.y >= this->position.y + this->side_length;
 
 	return out_of_reach;
 }
@@ -88,6 +72,32 @@ bool Node::isSimplest() {
 	return !this->parent->hasOnlyOneChild();
 }
 
+sf::Vector2f Node::getChildPosition(Quadrant q) {
+	sf::Vector2f return_v = sf::Vector2f(this->position);
+
+	switch (q) {
+		case Quadrant::ERROR:
+			std::cout << "Invalid q" << std::endl;
+			break;
+		case Quadrant::NORTH_WEST:
+			return return_v;
+		case Quadrant::NORTH_EAST:
+			return_v.x += this->side_length / 2.0f;
+			return return_v;
+		case Quadrant::SOUTH_WEST:
+			return_v.y += this->side_length / 2.0f;
+			return return_v;
+		case Quadrant::SOUTH_EAST:
+			return_v.x += this->side_length / 2.0f;
+			return_v.y += this->side_length / 2.0f;
+			return return_v;
+	}
+}
+
+void Node::updateMass() {
+	this->mass = 0.0f;
+}
+
 //Returns the quadrant in which given position is
 //situated. Considered quadrants' coordinate intervals
 //are in the form [a, b) and [b, c] (for each).
@@ -95,8 +105,10 @@ Quadrant Node::checkQuadrant(sf::Vector2f position) {
 	if (side_length == 0.0f)
 		exit(1);
 
-	if (outOfReach(position))
+	if (outOfReach(position)) {
+		outOfReach(position);
 		return Quadrant::ERROR;
+	}
 
 	bool x_less, y_less;
 
@@ -116,67 +128,47 @@ Quadrant Node::checkQuadrant(sf::Vector2f position) {
 }
 
 void Node::update() {
+	if (this == nullptr)
+		return;
+
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i]->update();
+
+	updateMass();
+
+	if (hasNoChildren() && isEmpty()) {
+		delete this;
+		return;
+	}
+
 	if (isEmpty() || (isEntityInside() && isSimplest()))
 		return;
 
 	CircGravEntity *temp_entity = this->entity;
-	this->parent->moveUp(temp_entity, this->position, true);
+	moveUp(temp_entity, this->position, hasNoChildren());
 	delete this;
-
-	if (this->north_west != nullptr)
-		this->north_west->update();
-
-	if (this->north_east != nullptr)
-		this->north_east->update();
-
-	if (this->south_west != nullptr)
-		this->south_west->update();
-
-	if (this->south_east != nullptr)
-		this->south_east->update();
 }
 
 void Node::pushQ(CircGravEntity *entity, Quadrant q) {
-	sf::Vector2f position = this->position;
-	float side_length = this->side_length / 2.0f;
+	if (q == Quadrant::ERROR)
+		return;
 
-	Node **n;
+	if (this->children[(int)q] == nullptr) {
+		sf::Vector2f position = this->getChildPosition(q);
+		float side_length = this->side_length / 2.0f;
 
-	switch (q) {
-		case Quadrant::NORTH_WEST:
-			n = &this->north_west;
-			break;
-
-		case Quadrant::NORTH_EAST:
-			position.x += side_length;
-			n = &this->north_east;
-			break;
-
-		case Quadrant::SOUTH_WEST:
-			position.y += side_length;
-			n = &this->south_west;
-			break;
-
-		case Quadrant::SOUTH_EAST:
-			position.x += side_length;
-			position.y += side_length;
-			n = &this->south_east;
-			break;
-
-		default:
-			return;
+		this->children[(int)q] = new Node(this, position, side_length);
 	}
 
-	if (*n == nullptr)
-		*n = new Node(this, position, side_length);
-
-	(*n)->push(entity);
+	this->children[(int)q]->push(entity);
 }
 
 void Node::push(CircGravEntity *entity) {
-	assert(entity != nullptr);
+	if (entity == nullptr || !isInside(entity)) {
+		printf("w\n");
+	}
 	
-	mass += entity->getMass();
+	this->mass += entity->getMass();
 
 	if (this->isEmpty() && this->hasNoChildren()) {
 		this->entity = entity;
@@ -184,7 +176,10 @@ void Node::push(CircGravEntity *entity) {
 	}
 
 	if (this->hasNoChildren()) {
-		this->pushQ(this->entity, this->checkQuadrant(this->entity->getPosition()));
+		if (isEntityInside())
+			this->pushQ(this->entity, this->checkQuadrant(this->entity->getPosition()));
+		else
+			this->moveUp(this->entity, this->position, false);
 		this->entity = nullptr;
 	}
 
@@ -202,48 +197,40 @@ void Node::moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_
 		return;
 	}
 
+	this->mass -= entity->getMass();
 	parent->moveUp(entity, this->position, hasNoChildren());
-	
-	if (hasNoChildren())
-		delete this;
 }
 
 void Node::draw(sf::RenderWindow *window) {
 	if (this == nullptr)
 		return;
 
-	window->draw(shape);
+	window->draw(this->shape);
 
-	north_west->draw(window);
-	north_east->draw(window);
-	south_west->draw(window);
-	south_east->draw(window);
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i]->draw(window);
 }
 
 Node::Node(Node *parent, sf::Vector2f position, float side_length)
 	:parent(parent), position(position), side_length(side_length), mass(0.f), entity(nullptr) {
 	
-	shape.setPosition(position);
-	shape.setSize(sf::Vector2f(side_length, side_length));
-	shape.setFillColor(sf::Color::Transparent);
-	shape.setOutlineThickness(1);
-	shape.setOutlineColor(sf::Color(32, 94, 37, 255));
+	this->shape.setPosition(position);
+	this->shape.setSize(sf::Vector2f(side_length, side_length));
+	this->shape.setFillColor(sf::Color::Transparent);
+	this->shape.setOutlineThickness(1);
+	this->shape.setOutlineColor(sf::Color(32, 94, 37, 255));
 
-	north_west = nullptr;
-	north_east = nullptr;
-	south_west = nullptr;
-	south_east = nullptr;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i] = nullptr;
 }
 
 Node::~Node() {
-	delete north_west;
-	delete north_east;
-	delete south_west;
-	delete south_east;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		delete this->children[i];
 }
 
 QuadTree::QuadTree() {
-	tree = nullptr;
+	this->tree = nullptr;
 }
 
 QuadTree::QuadTree(Node *parent, sf::Vector2f position, float side_length) {
@@ -260,6 +247,12 @@ Node *QuadTree::getTree() {
 
 void QuadTree::update() {
 	this->tree->update();
+}
+
+//Recursively calculates forces for all
+//bodies.
+void QuadTree::calculateForces() {
+
 }
 
 void QuadTree::build(CircGravEntity entities[], size_t size) {

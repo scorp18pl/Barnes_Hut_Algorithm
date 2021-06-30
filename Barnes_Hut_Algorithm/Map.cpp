@@ -1,6 +1,6 @@
 #include "Map.h"
 
-bool Map::inside(sf::Vector2f position) {
+bool Map::isInside(sf::Vector2f position) {
 	bool inside = position.x > this->starting_pos.x && position.x < this->ending_pos.x;
 	inside = inside && position.y > this->starting_pos.y && position.y < this->ending_pos.y;
 	

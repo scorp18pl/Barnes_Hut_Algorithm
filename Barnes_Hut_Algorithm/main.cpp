@@ -7,7 +7,7 @@
 
 
 int main() {
-	Simulation sim = Simulation(100ul);
+	Simulation sim = Simulation(1000ul);
 	sim.start();
 	return 0;
 }

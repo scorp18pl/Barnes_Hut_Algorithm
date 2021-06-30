@@ -6,7 +6,7 @@ class Map {
 private:
 	sf::Vector2f starting_pos, ending_pos;
 public:
-	bool inside(sf::Vector2f position);
+	bool isInside(sf::Vector2f position);
 	float getSide();
 	sf::Vector2f getStartingPosition();
 	sf::Vector2f getEndingPosition();

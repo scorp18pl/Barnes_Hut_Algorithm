@@ -10,7 +10,7 @@ void Simulation::generateEntities() {
 		position.x = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().x);
 		position.y = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().y);
 
-		float v = 0.01f;
+		float v = 1.0f;
 
 		velocity.x = MyRandom::getRandomFloat(-v, v);
 		velocity.y = MyRandom::getRandomFloat(-v, v);
@@ -20,38 +20,6 @@ void Simulation::generateEntities() {
 		entities[i] = CircGravEntity(position, velocity, radius * radius, radius);
 	}
 }
-
-//sf::Vector2f Simulation::getSmallCoordinates() {
-//	sf::Vector2f return_p = entities[0].getPosition();
-//
-//	for (size_t i = 0; i < ENTITY_COUNT; i++) {
-//		sf::Vector2f curr_pos = entities[i].getPosition();
-//		
-//		if (curr_pos.x < return_p.x)
-//			return_p.x = curr_pos.x;
-//
-//		if (curr_pos.y < return_p.y)
-//			return_p.y = curr_pos.y;
-//	}
-//
-//	return return_p;
-//}
-//
-//sf::Vector2f Simulation::getBigCoordinates() {
-//	sf::Vector2f return_p = entities[0].getPosition();
-//
-//	for (size_t i = 0; i < ENTITY_COUNT; i++) {
-//		sf::Vector2f curr_pos = entities[i].getPosition();
-//
-//		if (curr_pos.x > return_p.x)
-//			return_p.x = curr_pos.x;
-//
-//		if (curr_pos.y > return_p.y)
-//			return_p.y = curr_pos.y;
-//	}
-//
-//	return return_p;
-//}
 
 void Simulation::pollEvents() {
 	sf::Event event;
@@ -66,11 +34,15 @@ void Simulation::pollEvents() {
 
 void Simulation::update() {
 	pollEvents();
-
+	
+	//for (size_t i = 0; i < ENTITY_COUNT; i++)
+	//	this->map->
 	this->quad_tree->update();
 
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 		entities[i].update();
+
+	this->quad_tree->calculateForces();
 }
 
 void Simulation::render() {

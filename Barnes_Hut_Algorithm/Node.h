@@ -8,11 +8,17 @@ enum class Quadrant{
 };
 
 class Node {
+//Static
+public:
+	static const size_t CHILDREN_COUNT = 4;
+
+//Non - Static
 private:
 	//Node attributes
 	sf::Vector2f position;
 	float side_length;
 	float mass;
+	sf::Vector2f mass_center;
 
 	CircGravEntity* entity;
 
@@ -20,10 +26,7 @@ private:
 	Node *parent;
 
 	//Children
-	Node *north_west;
-	Node *north_east;
-	Node *south_west;
-	Node *south_east;
+	Node *children[CHILDREN_COUNT];
 	
 	sf::RectangleShape shape;
 	
@@ -40,6 +43,10 @@ private:
 	bool isInside(CircGravEntity *entity);
 	bool isEntityInside();
 	bool isSimplest();
+
+	sf::Vector2f getChildPosition(Quadrant q);
+
+	void updateMass();
 
 	Quadrant checkQuadrant(sf::Vector2f position);
 public:
@@ -69,6 +76,7 @@ public:
 	Node *getTree();
 
 	void update();
+	void calculateForces();
 	void build(CircGravEntity entities[], size_t size);
 	void draw(sf::RenderWindow *window);
 };
