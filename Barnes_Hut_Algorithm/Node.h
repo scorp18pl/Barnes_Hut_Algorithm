@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <stdbool.h>
+#include <stack>
 #include "Entity.h"
 
 enum class Quadrant{
@@ -46,32 +47,31 @@ private:
 
 	sf::Vector2f getChildPosition(Quadrant q);
 
-	void updateMass();
-
 	Quadrant checkQuadrant(sf::Vector2f position);
 public:
-	//Constructors and destructors
-	Node(Node *parent, sf::Vector2f position, float side_length);
-	~Node();
-
 	void update();
 	void pushQ(CircGravEntity *entity, Quadrant q);
 	void push(CircGravEntity *entity);
+	
+	void addMass(float mass);
 
 	void moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_to_nullptr);
 	void draw(sf::RenderWindow *window);
+
+	int countEntities();
+	float sumMass();
+
+	//Constructors and destructors
+	Node(Node *parent, sf::Vector2f position, float side_length);
+	~Node();
 };
 
 class QuadTree {
 private:
 	Node *tree;
+	std::stack<Node *> stack;
 
 public:
-	//Constructors and Destructors
-	QuadTree();
-	QuadTree(Node *parent, sf::Vector2f position, float side_length);
-	~QuadTree();
-
 	//Getters and setters
 	Node *getTree();
 
@@ -79,5 +79,9 @@ public:
 	void calculateForces();
 	void build(CircGravEntity entities[], size_t size);
 	void draw(sf::RenderWindow *window);
-};
 
+	//Constructors and Destructors
+	QuadTree();
+	QuadTree(Node *parent, sf::Vector2f position, float side_length);
+	~QuadTree();
+};

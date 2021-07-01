@@ -1,19 +1,20 @@
 #include "Node.h"
 #include <cassert>
 
+//Sets a quadrant child node to nullptr.
 void Node::setChildToNull(Quadrant quadrant) {
-	if (quadrant == Quadrant::ERROR) {
-		std::cout << "Invalid quadrant in setChildNull" << std::endl;
-		exit(1);
-	}
+	assert(quadrant != Quadrant::ERROR);
 
 	this->children[(int)quadrant] = nullptr;
 }
 
+//Returns whether or not a node is empty 
+//(has no entity assigned to it).
 inline bool Node::isEmpty() {
 	return entity == nullptr;
 }
 
+//Returns whether or not a node has children.
 inline bool Node::hasNoChildren() {
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
 		if (this->children[i] != nullptr)
@@ -58,6 +59,8 @@ bool Node::isInside(CircGravEntity *entity) {
 	return !outOfReach(entity->getPosition());
 }
 
+//Returns whether or not entity assigned to the node
+//is contained within the bounds of the node.
 bool Node::isEntityInside() {
 	assert(!isEmpty());
 	return isInside(this->entity);
@@ -94,10 +97,6 @@ sf::Vector2f Node::getChildPosition(Quadrant q) {
 	}
 }
 
-void Node::updateMass() {
-	this->mass = 0.0f;
-}
-
 //Returns the quadrant in which given position is
 //situated. Considered quadrants' coordinate intervals
 //are in the form [a, b) and [b, c] (for each).
@@ -131,18 +130,18 @@ void Node::update() {
 	if (this == nullptr)
 		return;
 
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->update();
-
-	updateMass();
-
 	if (hasNoChildren() && isEmpty()) {
 		delete this;
 		return;
 	}
 
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i]->update();
+
 	if (isEmpty() || (isEntityInside() && isSimplest()))
 		return;
+
+	assert(hasNoChildren());
 
 	CircGravEntity *temp_entity = this->entity;
 	moveUp(temp_entity, this->position, hasNoChildren());
@@ -150,8 +149,7 @@ void Node::update() {
 }
 
 void Node::pushQ(CircGravEntity *entity, Quadrant q) {
-	if (q == Quadrant::ERROR)
-		return;
+	assert(q != Quadrant::ERROR);
 
 	if (this->children[(int)q] == nullptr) {
 		sf::Vector2f position = this->getChildPosition(q);
@@ -164,30 +162,37 @@ void Node::pushQ(CircGravEntity *entity, Quadrant q) {
 }
 
 void Node::push(CircGravEntity *entity) {
-	if (entity == nullptr || !isInside(entity)) {
-		printf("w\n");
-	}
-	
-	this->mass += entity->getMass();
+	assert(entity != nullptr && isInside(entity));
 
 	if (this->isEmpty() && this->hasNoChildren()) {
 		this->entity = entity;
 		return;
 	}
 
-	if (this->hasNoChildren()) {
-		if (isEntityInside())
-			this->pushQ(this->entity, this->checkQuadrant(this->entity->getPosition()));
-		else
-			this->moveUp(this->entity, this->position, false);
-		this->entity = nullptr;
+	if (!this->isEmpty()) {
+		CircGravEntity *temp_entity = this->entity;
+
+		if (isEntityInside()) {
+			this->entity = nullptr;
+			this->pushQ(temp_entity, this->checkQuadrant(temp_entity->getPosition()));
+		}
+		else {
+			this->entity = entity;
+			parent->moveUp(temp_entity, this->position, false);
+			return;
+		}
 	}
+
 
 	this->pushQ(entity, this->checkQuadrant(entity->getPosition()));
 }
 
+void Node::addMass(float mass) {
+	this->mass += mass;
+}
+
 //Recursively moves the entity up the quadtree until it
-//it is contained within the node.
+//it is contained within the node .
 void Node::moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_to_nullptr) {
 	if (set_to_nullptr)
 		setChildToNull(checkQuadrant(child_position));
@@ -197,7 +202,6 @@ void Node::moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_
 		return;
 	}
 
-	this->mass -= entity->getMass();
 	parent->moveUp(entity, this->position, hasNoChildren());
 }
 
@@ -209,6 +213,34 @@ void Node::draw(sf::RenderWindow *window) {
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
 		this->children[i]->draw(window);
+}
+
+int Node::countEntities() {
+	if (this == nullptr)
+		return 0;
+
+	int sum = 0;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		sum += this->children[i]->countEntities();
+
+	if (!this->isEmpty())
+		sum++;
+
+	return sum;
+}
+
+float Node::sumMass() {
+	if (this == nullptr)
+		return 0.0f;
+
+	if (!isEmpty())
+		return this->mass;
+
+	float sum = 0.0f;
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		sum += children[i]->sumMass();
+
+	return sum;
 }
 
 Node::Node(Node *parent, sf::Vector2f position, float side_length)
@@ -246,6 +278,8 @@ Node *QuadTree::getTree() {
 }
 
 void QuadTree::update() {
+	std::cout << "There are " << this->tree->countEntities() << " entities in the tree" << std::endl;
+	std::cout << "Tree mass == " << this->tree->sumMass() << std::endl;
 	this->tree->update();
 }
 
