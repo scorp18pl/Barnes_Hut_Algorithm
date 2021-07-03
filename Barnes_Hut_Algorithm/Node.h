@@ -19,7 +19,7 @@ private:
 	sf::Vector2f position;
 	float side_length;
 	float mass;
-	sf::Vector2f mass_center;
+	sf::Vector2f center_of_mass;
 
 	CircGravEntity* entity;
 
@@ -46,20 +46,21 @@ private:
 	bool isSimplest();
 
 	sf::Vector2f getChildPosition(Quadrant q);
-
 	Quadrant checkQuadrant(sf::Vector2f position);
 public:
 	void update();
+	void updateMass();
+	void updateCenterOfMass();
+
 	void pushQ(CircGravEntity *entity, Quadrant q);
 	void push(CircGravEntity *entity);
-	
-	void addMass(float mass);
 
 	void moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_to_nullptr);
 	void draw(sf::RenderWindow *window);
 
 	int countEntities();
-	float sumMass();
+	float getMass();
+	sf::Vector2f getCenterOfMass();
 
 	//Constructors and destructors
 	Node(Node *parent, sf::Vector2f position, float side_length);
@@ -68,13 +69,16 @@ public:
 
 class QuadTree {
 private:
+	static std::stack<Node *> stack;
 	Node *tree;
-	std::stack<Node *> stack;
 
+	static void stackClear();
 public:
+
 	//Getters and setters
 	Node *getTree();
 
+	static void stackPush(Node *node);
 	void update();
 	void calculateForces();
 	void build(CircGravEntity entities[], size_t size);
@@ -85,3 +89,4 @@ public:
 	QuadTree(Node *parent, sf::Vector2f position, float side_length);
 	~QuadTree();
 };
+

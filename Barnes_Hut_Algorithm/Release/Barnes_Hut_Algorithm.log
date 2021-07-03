@@ -1,7 +1,6 @@
 ﻿  Node.cpp
   Trwa generowanie kodu
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.cpp(101): warning C4715: "Node::getChildPosition”: niewszystkie ścieżki kodu zwracają wartość
-  3 of 91 functions ( 3.3%) were compiled, the rest were copied from previous compilation.
+  4 of 206 functions ( 1.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     2 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu

@@ -7,7 +7,7 @@ Entity::Entity(sf::Vector2f position, sf::Vector2f velocity)
 }
 
 sf::Vector2f Entity::getPosition() {
-	return position;
+	return this->position;
 }
 
 void Entity::update() {
@@ -59,6 +59,10 @@ CircGravEntity::CircGravEntity(sf::Vector2f position, sf::Vector2f velocity, flo
 							   float radius, sf::Color color)
 	:GravEntity(position, velocity, mass), CircEntity(){
 	this->shape.setPosition(Entity::position);
+	this->shape.setRadius(radius);
+}
+
+CircGravEntity::~CircGravEntity() {
 }
 
 void CircGravEntity::update() {

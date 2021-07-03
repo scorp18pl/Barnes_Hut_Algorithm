@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include <iostream>
 
 class Entity {
 protected:
@@ -46,6 +47,8 @@ public:
 
 	CircGravEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
 				   float radius = 4.f, sf::Color color = sf::Color::White);
+
+	~CircGravEntity();
 
 	void update();
 };

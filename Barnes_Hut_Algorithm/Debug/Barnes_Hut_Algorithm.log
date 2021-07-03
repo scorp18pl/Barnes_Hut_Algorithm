@@ -1,4 +1,7 @@
 ﻿  Node.cpp
+  Simulation.cpp
+  main.cpp
+  Generowanie kodu...
 C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.cpp(98): warning C4715: "Node::getChildPosition”: niewszystkie ścieżki kodu zwracają wartość
 LINK : warning LNK4075: zignorowano opcję „/INCREMENTAL” z powodu określenia opcji „/PROFILE”
 Entity.obj : warning LNK4075: zignorowano opcję „/EDITANDCONTINUE” z powodu określenia opcji „/OPT:REF”

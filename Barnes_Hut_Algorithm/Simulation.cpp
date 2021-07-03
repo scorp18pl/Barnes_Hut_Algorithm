@@ -69,8 +69,9 @@ Simulation::Simulation(size_t entity_count)
 }
 
 Simulation::~Simulation() {
+	delete[] entities;
+	delete quad_tree;
 	delete window;
-	delete [] entities;
 }
 
 void Simulation::start() {
