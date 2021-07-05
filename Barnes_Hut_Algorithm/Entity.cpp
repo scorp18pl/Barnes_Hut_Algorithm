@@ -1,13 +1,29 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Vector2f position, sf::Vector2f velocity)
-	:position(position), velocity(velocity) {
+Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
+	:position(position), velocity(velocity), mass(mass) {
 	this->acceleration.x = 0.f;
 	this->acceleration.y = 0.f;
 }
 
+float Entity::getMass() {
+	return this->mass;
+}
+
 sf::Vector2f Entity::getPosition() {
 	return this->position;
+}
+
+float Entity::getDistance(sf::Vector2f position) {
+	float x, y;
+	x = this->position.x - position.x;
+	y = this->position.y - position.y;
+
+	return (float)sqrt(x * x + y * y);
+}
+
+sf::Vector2f Entity::GForce(float mass, sf::Vector2f position) {
+	return sf::Vector2f(0.0f, 0.0f);
 }
 
 void Entity::update() {
@@ -20,28 +36,19 @@ void Entity::update() {
 	this->acceleration = sf::Vector2f(0.f, 0.f);
 }
 
-GravEntity::GravEntity(sf::Vector2f position, sf::Vector2f velocity, float mass)
-	:Entity(position, velocity), mass(mass)	{
-}
-
-float GravEntity::getMass() {
-	return this->mass;
-}
-
-CircEntity::CircEntity(float radius, sf::Color color)
-	:shape(sf::CircleShape(radius)) {
-	this->shape.setFillColor(color);
+void Entity::draw(sf::RenderWindow *window) {
 }
 
 void CircEntity::draw(sf::RenderWindow* window) {
 	window->draw(this->shape);
 }
 
-void GravEntity::update() {
-	Entity::update();
+void Entity::accelerate(sf::Vector2f force) {
+	this->acceleration.x += force.x / this->mass;
+	this->acceleration.y += force.y / this->mass;
 }
 
-void CircGravEntity::updateShapePosition() {
+void CircEntity::updateShapePosition() {
 	sf::Vector2f position = this->position;
 	float r = this->shape.getRadius();
 	position.x -= r;
@@ -50,23 +57,23 @@ void CircGravEntity::updateShapePosition() {
 	this->shape.setPosition(position);
 }
 
-CircGravEntity::CircGravEntity()
-	:CircGravEntity(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), 0.f)
-{
+CircEntity::CircEntity()
+	:CircEntity(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), 0.f) {
 }
 
-CircGravEntity::CircGravEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
+CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
 							   float radius, sf::Color color)
-	:GravEntity(position, velocity, mass), CircEntity(){
+	: shape(sf::CircleShape(radius)), Entity(position, velocity, mass) {
 	this->shape.setPosition(Entity::position);
 	this->shape.setRadius(radius);
+	this->shape.setFillColor(color);
 }
 
-CircGravEntity::~CircGravEntity() {
+CircEntity::~CircEntity() {
 }
 
-void CircGravEntity::update() {
-	GravEntity::update();
+void CircEntity::update() {
+	Entity::update();
 	this->updateShapePosition();
 }
 

@@ -12,6 +12,7 @@ class Node {
 //Static
 public:
 	static const size_t CHILDREN_COUNT = 4;
+	static const float PHI;
 
 //Non - Static
 private:
@@ -21,7 +22,7 @@ private:
 	float mass;
 	sf::Vector2f center_of_mass;
 
-	CircGravEntity* entity;
+	Entity* entity;
 
 	//Parent
 	Node *parent;
@@ -41,7 +42,7 @@ private:
 	bool hasOnlyOneChild();
 
 	bool outOfReach(sf::Vector2f position);
-	bool isInside(CircGravEntity *entity);
+	bool isInside(Entity *entity);
 	bool isEntityInside();
 	bool isSimplest();
 
@@ -52,11 +53,15 @@ public:
 	void updateMass();
 	void updateCenterOfMass();
 
-	void pushQ(CircGravEntity *entity, Quadrant q);
-	void push(CircGravEntity *entity);
+	void pushQ(Entity *entity, Quadrant q);
+	void push(Entity *entity);
 
-	void moveUp(CircGravEntity *entity, sf::Vector2f child_position, bool set_to_nullptr);
+	void moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullptr);
 	void draw(sf::RenderWindow *window);
+
+	void calculateForce(Entity entity);
+
+	bool isFarEnough(Entity entity);
 
 	int countEntities();
 	float getMass();
@@ -80,8 +85,8 @@ public:
 
 	static void stackPush(Node *node);
 	void update();
-	void calculateForces();
-	void build(CircGravEntity entities[], size_t size);
+	void calculateForces(Entity entity);
+	void build(Entity entities[], size_t size);
 	void draw(sf::RenderWindow *window);
 
 	//Constructors and Destructors

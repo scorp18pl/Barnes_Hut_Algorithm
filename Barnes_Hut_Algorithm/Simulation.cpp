@@ -10,14 +10,14 @@ void Simulation::generateEntities() {
 		position.x = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().x);
 		position.y = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().y);
 
-		float v = 1.0f;
+		float v = 0.1f;
 
 		velocity.x = MyRandom::getRandomFloat(-v, v);
 		velocity.y = MyRandom::getRandomFloat(-v, v);
 
 		float radius = MyRandom::getRandomFloat(1.f, 5.f);
 
-		entities[i] = CircGravEntity(position, velocity, radius * radius, radius);
+		entities[i] = CircEntity(position, velocity, radius * radius, radius);
 	}
 }
 
@@ -42,7 +42,8 @@ void Simulation::update() {
 
 	this->quad_tree->update();
 
-	this->quad_tree->calculateForces();
+	for (size_t i = 0; i < ENTITY_COUNT; i++)
+		this->quad_tree->calculateForces(this->entities[i]);
 }
 
 void Simulation::render() {
@@ -59,7 +60,7 @@ void Simulation::render() {
 Simulation::Simulation(size_t entity_count) 
 	:ENTITY_COUNT(entity_count) {
 
-	this->entities = new CircGravEntity[ENTITY_COUNT];
+	this->entities = new CircEntity[ENTITY_COUNT];
 
 	this->quad_tree = new QuadTree(nullptr, this->map.getStartingPosition(), this->map.getSide());
 

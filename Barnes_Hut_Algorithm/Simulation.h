@@ -13,7 +13,7 @@ private:
 	Map map;
 
 	const size_t ENTITY_COUNT = 32;
-	CircGravEntity *entities;
+	CircEntity *entities;
 
 	QuadTree *quad_tree;
 
