@@ -206,7 +206,8 @@ void Node::pushQ(Entity *entity, Quadrant q) {
 }
 
 void Node::push(Entity *entity) {
-	assert(entity != nullptr && isInside(entity));
+	if (!(entity != nullptr && isInside(entity)))
+		printf("w");
 
 	if (this->isEmpty() && this->hasNoChildren()) {
 		this->entity = entity;
@@ -251,8 +252,8 @@ void Node::moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullp
 void Node::draw(sf::RenderWindow *window) {
 	if (this == nullptr)
 		return;
-
-	window->draw(this->shape);
+	if (!isEmpty())
+		window->draw(this->shape);
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
 		this->children[i]->draw(window);
@@ -355,7 +356,7 @@ void QuadTree::calculateForces(Entity entity) {
 	this->tree->calculateForce(entity);
 }
 
-void QuadTree::build(Entity entities[], size_t size) {
+void QuadTree::build(CircEntity entities[], size_t size) {
 	for (size_t i = 0; i < size; i++)
 		this->tree->push(entities + i);
 }

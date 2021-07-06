@@ -86,7 +86,7 @@ public:
 	static void stackPush(Node *node);
 	void update();
 	void calculateForces(Entity entity);
-	void build(Entity entities[], size_t size);
+	void build(CircEntity entities[], size_t size);
 	void draw(sf::RenderWindow *window);
 
 	//Constructors and Destructors

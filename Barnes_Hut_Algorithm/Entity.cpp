@@ -63,7 +63,7 @@ CircEntity::CircEntity()
 
 CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
 							   float radius, sf::Color color)
-	: shape(sf::CircleShape(radius)), Entity(position, velocity, mass) {
+	:Entity(position, velocity, mass) {
 	this->shape.setPosition(Entity::position);
 	this->shape.setRadius(radius);
 	this->shape.setFillColor(color);
