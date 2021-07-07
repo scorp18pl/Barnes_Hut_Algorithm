@@ -1,9 +1,16 @@
 #pragma once
-#include "SFML/Graphics.hpp"
+
 #include <iostream>
+#include <cmath>
+#include <cassert>
+
+#include "SFML/Graphics.hpp"
+#include "OmniMath.h"
+
 
 class Entity {
 protected:
+	static const float G;
 	float mass;
 	sf::Vector2f position, velocity, acceleration;
 public:
@@ -13,12 +20,16 @@ public:
 	//Getters and setters
 	float getMass();
 	sf::Vector2f getPosition();
+	void disable();
 
 	//Other public methods
+	bool isDisabled();
 	float getDistance(sf::Vector2f position);
 	sf::Vector2f GForce(float mass, sf::Vector2f position);
 	void accelerate(sf::Vector2f force);
+	void zeroAcc();
 	void update();
+
 	virtual void draw(sf::RenderWindow *window);
 };
 

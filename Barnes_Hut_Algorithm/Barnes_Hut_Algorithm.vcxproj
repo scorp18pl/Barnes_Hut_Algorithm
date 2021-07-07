@@ -152,6 +152,7 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MyRandom.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="OmniMath.cpp" />
     <ClCompile Include="Simulation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MyRandom.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="OmniMath.h" />
     <ClInclude Include="Simulation.h" />
   </ItemGroup>
   <ItemGroup>

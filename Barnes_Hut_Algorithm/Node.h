@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdbool.h>
 #include <stack>
+#include <cassert>
+
 #include "Entity.h"
 
 enum class Quadrant{
@@ -55,13 +57,14 @@ public:
 
 	void pushQ(Entity *entity, Quadrant q);
 	void push(Entity *entity);
-
 	void moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullptr);
+	void branchRemove(sf::Vector2f child_position, bool set_to_nullptr);
+
 	void draw(sf::RenderWindow *window);
 
-	void calculateForce(Entity entity);
+	void calculateForce(Entity *entity);
 
-	bool isFarEnough(Entity entity);
+	bool isCloseEnough(Entity *entity);
 
 	int countEntities();
 	float getMass();
@@ -85,8 +88,8 @@ public:
 
 	static void stackPush(Node *node);
 	void update();
-	void calculateForces(Entity entity);
-	void build(CircEntity entities[], size_t size);
+	void calculateForces(Entity *entity);
+	void build(std::vector<CircEntity *> entities, size_t size);
 	void draw(sf::RenderWindow *window);
 
 	//Constructors and Destructors

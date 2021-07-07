@@ -1,10 +1,7 @@
-﻿  Node.cpp
-  Simulation.cpp
-  main.cpp
+﻿  Simulation.cpp
   Trwa generowanie kodu
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.cpp(98): warning C4715: "Node::getChildPosition”: niewszystkie ścieżki kodu zwracają wartość
-  25 of 207 functions (12.1%) were compiled, the rest were copied from previous compilation.
-    3 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+  0 of 280 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   Barnes_Hut_Algorithm.vcxproj -> C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Release\Barnes_Hut_Algorithm.exe

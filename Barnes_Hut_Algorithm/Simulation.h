@@ -3,6 +3,7 @@
 #include "SFML/Graphics.hpp"
 
 #include <algorithm>
+#include <vector>
 #include "MyRandom.h"
 #include "Map.h"
 #include "Entity.h"
@@ -13,7 +14,7 @@ private:
 	Map map;
 
 	const size_t ENTITY_COUNT = 32;
-	CircEntity *entities;
+	std::vector<CircEntity *> entities;
 
 	QuadTree *quad_tree;
 

@@ -1,5 +1,4 @@
 #include "Node.h"
-#include <cassert>
 
 const float Node::PHI = 0.5f;
 
@@ -181,7 +180,11 @@ void Node::update() {
 		return;
 
 	if (!isEmpty()) {
-		if (!isEntityInside() || !isSimplest()) {
+		if (this->entity->isDisabled()) {
+			delete this->entity;
+			this->parent->branchRemove(this->position, true);
+		}
+		else if (!isEntityInside() || !isSimplest()) {
 			Entity *temp_entity = this->entity;
 			moveUp(temp_entity, this->position, hasNoChildren());
 		}
@@ -206,8 +209,7 @@ void Node::pushQ(Entity *entity, Quadrant q) {
 }
 
 void Node::push(Entity *entity) {
-	if (!(entity != nullptr && isInside(entity)))
-		printf("w");
+	assert(entity != nullptr && isInside(entity));
 
 	if (this->isEmpty() && this->hasNoChildren()) {
 		this->entity = entity;
@@ -249,23 +251,49 @@ void Node::moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullp
 	parent->moveUp(entity, this->position, hasNoChildren());
 }
 
+void Node::branchRemove(sf::Vector2f child_position, bool set_to_nullptr) {
+	if (set_to_nullptr) {
+		Quadrant q = checkQuadrant(child_position);
+		QuadTree::stackPush(this->children[(int)q]);
+		setChildToNull(q);
+	}
+
+	if (isSimplest())
+		return;
+
+	this->parent->branchRemove(this->position, hasNoChildren());
+}
+
 void Node::draw(sf::RenderWindow *window) {
 	if (this == nullptr)
 		return;
-	if (!isEmpty())
-		window->draw(this->shape);
+	//if (!isEmpty())
+	window->draw(this->shape);
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
 		this->children[i]->draw(window);
 }
 
-void Node::calculateForce(Entity entity) {
-	if (!isEmpty())
-		entity.accelerate(entity.GForce(this->mass, this->position));
+void Node::calculateForce(Entity *entity) {
+	if (this == nullptr)
+		return;
+
+	if (!isEmpty() && entity != this->entity) {
+		entity->accelerate(entity->GForce(this->entity->getMass(), this->entity->getPosition()));
+		return;
+	}
+
+	if (isCloseEnough(entity)) {
+		entity->accelerate(entity->GForce(this->mass, this->center_of_mass));
+		return;
+	}
+
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i]->calculateForce(entity);
 }
 
-bool Node::isFarEnough(Entity entity) {
-	return entity.getDistance(this->center_of_mass) > Node::PHI * this->side_length;
+bool Node::isCloseEnough(Entity *entity) {
+	return this->side_length < Node::PHI * entity->getDistance(this->center_of_mass);
 }
 
 int Node::countEntities() {
@@ -352,21 +380,21 @@ void QuadTree::update() {
 
 //Recursively calculates forces for all
 //bodies.
-void QuadTree::calculateForces(Entity entity) {
+void QuadTree::calculateForces(Entity *entity) {
 	this->tree->calculateForce(entity);
 }
 
-void QuadTree::build(CircEntity entities[], size_t size) {
+void QuadTree::build(std::vector<CircEntity *> entities, size_t size) {
 	for (size_t i = 0; i < size; i++)
-		this->tree->push(entities + i);
+		this->tree->push(entities[i]);
 }
 
 void QuadTree::draw(sf::RenderWindow *window) {
 	if (tree != nullptr)
 		tree->draw(window);
 
-	sf::CircleShape center = sf::CircleShape(10.0f);
-	center.setPosition(this->tree->getCenterOfMass());
-	center.setFillColor(sf::Color::Red);
-	window->draw(center);
+	//sf::CircleShape center = sf::CircleShape(10.0f);
+	//center.setPosition(this->tree->getCenterOfMass());
+	//center.setFillColor(sf::Color::Red);
+	//window->draw(center);
 }
