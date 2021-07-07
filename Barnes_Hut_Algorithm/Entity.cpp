@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-const float Entity::G = 1e-2f;
+const float Entity::G = 1e-5f;
 
 Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
 	:position(position), velocity(velocity), mass(mass) {

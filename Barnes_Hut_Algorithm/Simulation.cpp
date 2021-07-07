@@ -10,15 +10,52 @@ void Simulation::generateEntities() {
 		position.x = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().x);
 		position.y = MyRandom::getRandomFloat(0.f, (float)this->window->getSize().y);
 
-		float v = 0.00f;
+		float v = 0.001f;
 
 		velocity.x = MyRandom::getRandomFloat(-v, v);
 		velocity.y = MyRandom::getRandomFloat(-v, v);
 
-		float radius = MyRandom::getRandomFloat(1.f, 5.f);
+		float radius = MyRandom::getRandomFloat(1.0f, 5.0f);
 
 		entities.push_back(new CircEntity(position, velocity, radius * radius, radius));
 	}
+}
+
+void Simulation::moveView(sf::Vector2f v) {
+	sf::View view = this->window->getView();
+	sf::Vector2f center = view.getCenter();
+
+	center.x += v.x;
+	center.y += v.y;
+
+	view.setCenter(center);
+	this->window->setView(view);
+}
+
+void Simulation::zoomView(float delta) {
+	if (delta == 0.0f)
+		return;
+
+	sf::View view = this->window->getView();
+	sf::Vector2f size = view.getSize();
+	if (delta > 0) {
+		size.x /= delta;
+		size.y /= delta;
+	}
+	else {
+		size.x *= -delta;
+		size.y *= -delta;
+	}
+
+	view.setSize(size);
+	this->window->setView(view);
+}
+
+void Simulation::toggleTree() {
+	if (this->draw_tree == true)
+		this->draw_tree = false;
+	else
+		this->draw_tree = true;
 }
 
 void Simulation::pollEvents() {
@@ -28,6 +65,38 @@ void Simulation::pollEvents() {
 			case sf::Event::Closed:
 				window->close();
 				break;
+			case sf::Event::KeyPressed:
+				switch (event.key.code) {
+					case sf::Keyboard::A:
+						moveView(sf::Vector2f(-4.0f, 0.0f));
+						break;
+					case sf::Keyboard::W:
+						moveView(sf::Vector2f(0.0f, -4.0f));
+						break;
+					case sf::Keyboard::S:
+						moveView(sf::Vector2f(0.0f, 4.0f));
+						break;
+					case sf::Keyboard::D:
+						moveView(sf::Vector2f(4.0f, 0.0f));
+						break;
+					case sf::Keyboard::P:
+						zoomView(2.0f);
+						break;
+					case sf::Keyboard::L:
+						zoomView(-2.0f);
+						break;
+					default:
+						break;
+				}
+				break;
+			case sf::Event::KeyReleased:
+				switch (event.key.code) {
+					case sf::Keyboard::T:
+						toggleTree();
+						break;
+					default:
+						break;
+				}
 		}
 	}
 }
@@ -45,7 +114,7 @@ void Simulation::update() {
 			i--;
 		}
 
-	std::cout << "There are " << this->entities.size() << " entities." << std::endl;
+	//std::cout << "There are " << this->entities.size() << " entities." << std::endl;
 
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 		this->entities[i]->zeroAcc();
@@ -61,14 +130,15 @@ void Simulation::render() {
 
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 		entities[i]->draw(this->window);
-
-	quad_tree->draw(this->window);
+	
+	if (this->draw_tree)
+		quad_tree->draw(this->window);
 
 	window->display();
 }
 
 Simulation::Simulation(size_t entity_count) 
-	:ENTITY_COUNT(entity_count) {
+	:ENTITY_COUNT(entity_count), draw_tree(false) {
 
 	this->entities = std::vector<CircEntity *>();
 

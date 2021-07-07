@@ -14,6 +14,7 @@ private:
 	Map map;
 
 	const size_t ENTITY_COUNT = 32;
+	bool draw_tree;
 	std::vector<CircEntity *> entities;
 
 	QuadTree *quad_tree;
@@ -23,6 +24,11 @@ private:
 	void generateEntities();
 	//sf::Vector2f getSmallCoordinates();
 	//sf::Vector2f getBigCoordinates();
+
+	void moveView(sf::Vector2f v);
+	void zoomView(float delta);
+
+	void toggleTree();
 
 	void pollEvents();
 	void update();
