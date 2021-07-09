@@ -10,6 +10,7 @@
 
 class Entity {
 protected:
+	bool draw_acc;
 	static const float G;
 	float mass;
 	sf::Vector2f position, velocity, acceleration;
@@ -30,7 +31,9 @@ public:
 	void zeroAcc();
 	void update();
 
+	//drawing
 	virtual void draw(sf::RenderWindow *window);
+	virtual void toggleDrawAcc();
 };
 
 class CircEntity : public Entity{

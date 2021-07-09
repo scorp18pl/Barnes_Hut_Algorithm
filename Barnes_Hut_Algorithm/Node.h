@@ -60,9 +60,10 @@ public:
 	void moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullptr);
 	void branchRemove(sf::Vector2f child_position, bool set_to_nullptr);
 
+	void setOutlineThickness(float thickness);
 	void draw(sf::RenderWindow *window);
 
-	void calculateForce(Entity *entity);
+	void calculateForce(Entity *entity, bool barnes_hut);
 
 	bool isCloseEnough(Entity *entity);
 
@@ -77,6 +78,7 @@ public:
 
 class QuadTree {
 private:
+	bool barnes_hut;
 	static std::stack<Node *> stack;
 	Node *tree;
 
@@ -88,8 +90,11 @@ public:
 
 	static void stackPush(Node *node);
 	void update();
+
+	void toggleBarnesHut();
 	void calculateForces(Entity *entity);
-	void build(std::vector<CircEntity *> entities, size_t size);
+	
+	void build(std::vector<CircEntity *> entities);
 	void draw(sf::RenderWindow *window);
 
 	//Constructors and Destructors

@@ -20,15 +20,25 @@ private:
 	QuadTree *quad_tree;
 
 	sf::RenderWindow* window;
+	bool center;
+	Entity *center_entity;
+	sf::Vector2f camera_velocity;
 
 	void generateEntities();
 	//sf::Vector2f getSmallCoordinates();
 	//sf::Vector2f getBigCoordinates();
 
+	void addCamVel(sf::Vector2f v);
+	void clearCamVel();
+	
+	void setViewPosition(sf::Vector2f v);
 	void moveView(sf::Vector2f v);
 	void zoomView(float delta);
 
+	void toggleCenter();
 	void toggleTree();
+	void toggleAcc();
+	void toggleBarnesHut();
 
 	void pollEvents();
 	void update();

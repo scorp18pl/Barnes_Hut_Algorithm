@@ -1,7 +1,8 @@
 ﻿  Entity.cpp
+  Simulation.cpp
   Trwa generowanie kodu
-  1 of 282 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+  3 of 292 functions ( 1.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   Barnes_Hut_Algorithm.vcxproj -> C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Release\Barnes_Hut_Algorithm.exe

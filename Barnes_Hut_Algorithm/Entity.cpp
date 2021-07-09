@@ -1,9 +1,9 @@
 #include "Entity.h"
 
-const float Entity::G = 1e-5f;
+const float Entity::G = 1e-3f;
 
 Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
-	:position(position), velocity(velocity), mass(mass) {
+	:position(position), velocity(velocity), mass(mass), draw_acc(false) {
 	this->acceleration.x = 0.f;
 	this->acceleration.y = 0.f;
 }
@@ -77,21 +77,31 @@ void Entity::update() {
 void Entity::draw(sf::RenderWindow *window) {
 }
 
+void Entity::toggleDrawAcc() {
+	if (this->draw_acc == false)
+		this->draw_acc = true;
+	else
+		this->draw_acc = false;
+}
+
 void CircEntity::draw(sf::RenderWindow* window) {
 	window->draw(this->shape);
 
-	//sf::Vector2f acc = this->position;
-	//float norm = Q_rsqrt(this->acceleration.x * this->acceleration.x +
-	//							this->acceleration.y * this->acceleration.y);
-	//acc.x += 10.0f * this->acceleration.x * norm;
-	//acc.y += 10.0f * this->acceleration.y * norm;
+	if (!this->draw_acc)
+		return;
 
-	//sf::Vertex line[2] = {
-	//	sf::Vertex(this->position, sf::Color::White),
-	//	sf::Vertex(acc, sf::Color::White)
-	//};
+	sf::Vector2f acc = this->position;
+	float norm = Q_rsqrt(this->acceleration.x * this->acceleration.x +
+								this->acceleration.y * this->acceleration.y);
+	acc.x += this->shape.getRadius() * this->acceleration.x * norm;
+	acc.y += this->shape.getRadius() * this->acceleration.y * norm;
 
-	//window->draw(line, 2, sf::Lines);
+	sf::Vertex line[2] = {
+		sf::Vertex(this->position, sf::Color::Red),
+		sf::Vertex(acc, sf::Color::Red)
+	};
+
+	window->draw(line, 2, sf::Lines);
 }
 
 void Entity::accelerate(sf::Vector2f force) {

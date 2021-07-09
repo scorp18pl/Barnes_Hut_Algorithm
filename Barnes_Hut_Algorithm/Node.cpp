@@ -243,6 +243,9 @@ void Node::moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullp
 		setChildToNull(q);
 	}
 
+	if (entity->isDisabled())
+		return;
+
 	if (isInside(entity) && isSimplest()) {
 		this->push(entity);
 		return;
@@ -264,6 +267,16 @@ void Node::branchRemove(sf::Vector2f child_position, bool set_to_nullptr) {
 	this->parent->branchRemove(this->position, hasNoChildren());
 }
 
+void Node::setOutlineThickness(float thickness) {
+	if (this == nullptr)
+		return;
+
+	this->shape.setOutlineThickness(thickness);
+
+	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
+		this->children[i]->setOutlineThickness(thickness);
+}
+
 void Node::draw(sf::RenderWindow *window) {
 	if (this == nullptr)
 		return;
@@ -274,7 +287,7 @@ void Node::draw(sf::RenderWindow *window) {
 		this->children[i]->draw(window);
 }
 
-void Node::calculateForce(Entity *entity) {
+void Node::calculateForce(Entity *entity, bool barnes_hut) {
 	if (this == nullptr)
 		return;
 
@@ -283,13 +296,13 @@ void Node::calculateForce(Entity *entity) {
 		return;
 	}
 
-	if (isCloseEnough(entity)) {
+	if (barnes_hut && isCloseEnough(entity)) {
 		entity->accelerate(entity->GForce(this->mass, this->center_of_mass));
 		return;
 	}
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->calculateForce(entity);
+		this->children[i]->calculateForce(entity, barnes_hut);
 }
 
 bool Node::isCloseEnough(Entity *entity) {
@@ -325,7 +338,7 @@ Node::Node(Node *parent, sf::Vector2f position, float side_length)
 	this->shape.setPosition(position);
 	this->shape.setSize(sf::Vector2f(side_length, side_length));
 	this->shape.setFillColor(sf::Color::Transparent);
-	this->shape.setOutlineThickness(1);
+	this->shape.setOutlineThickness(1.0f);
 	this->shape.setOutlineColor(sf::Color(32, 94, 37, 255));
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
@@ -339,12 +352,12 @@ Node::~Node() {
 
 std::stack<Node *> QuadTree::stack;
 
-QuadTree::QuadTree() {
-	this->tree = nullptr;
+QuadTree::QuadTree() 
+	:barnes_hut(true), tree(nullptr) {
 }
 
-QuadTree::QuadTree(Node *parent, sf::Vector2f position, float side_length) {
-	this->tree = new Node(parent, position, side_length);
+QuadTree::QuadTree(Node *parent, sf::Vector2f position, float side_length)
+	: barnes_hut(true), tree(new Node(parent, position, side_length)) {
 }
 
 QuadTree::~QuadTree() {
@@ -378,20 +391,26 @@ void QuadTree::update() {
 	//std::cout << "Tree mass center == " << center.x << ", " << center.y << std::endl;
 }
 
+void QuadTree::toggleBarnesHut() {
+	this->barnes_hut = !this->barnes_hut;
+}
+
 //Recursively calculates forces for all
 //bodies.
 void QuadTree::calculateForces(Entity *entity) {
-	this->tree->calculateForce(entity);
+	this->tree->calculateForce(entity, this->barnes_hut);
 }
 
-void QuadTree::build(std::vector<CircEntity *> entities, size_t size) {
-	for (size_t i = 0; i < size; i++)
+void QuadTree::build(std::vector<CircEntity *> entities) {
+	for (size_t i = 0; i < entities.size(); i++)
 		this->tree->push(entities[i]);
 }
 
 void QuadTree::draw(sf::RenderWindow *window) {
-	if (tree != nullptr)
+	if (tree != nullptr) {
+		tree->setOutlineThickness(window->getView().getSize().x / 1000.0f);
 		tree->draw(window);
+	}
 
 	//sf::CircleShape center = sf::CircleShape(10.0f);
 	//center.setPosition(this->tree->getCenterOfMass());
