@@ -8,10 +8,12 @@
 #include "Map.h"
 #include "Entity.h"
 #include "Node.h"
+#include "Camera.h"
 
 class Simulation {
 private:
 	Map map;
+	Camera camera;
 
 	const size_t ENTITY_COUNT = 32;
 	bool draw_tree;
@@ -19,31 +21,25 @@ private:
 
 	QuadTree *quad_tree;
 
+	size_t followed_i;
 	sf::RenderWindow* window;
-	bool center;
-	Entity *center_entity;
-	sf::Vector2f camera_velocity;
 
 	void generateEntities();
 	//sf::Vector2f getSmallCoordinates();
 	//sf::Vector2f getBigCoordinates();
 
-	void addCamVel(sf::Vector2f v);
-	void clearCamVel();
-	
-	void setViewPosition(sf::Vector2f v);
-	void moveView(sf::Vector2f v);
-	void zoomView(float delta);
-
-	void toggleCenter();
 	void toggleTree();
 	void toggleAcc();
 	void toggleBarnesHut();
+
+	void followPrevious();
+	void followNext();
 
 	void pollEvents();
 	void update();
 	void render();
 public:
+	static sf::Font font;
 
 	//Constructors and destructors
 	Simulation(size_t entity_count);

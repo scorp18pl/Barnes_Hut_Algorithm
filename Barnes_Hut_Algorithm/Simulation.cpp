@@ -1,5 +1,7 @@
 #include "Simulation.h"
 
+sf::Font Simulation::font;
+
 bool Simulation::isRunning() {
 	return this->window->isOpen();
 }
@@ -20,60 +22,11 @@ void Simulation::generateEntities() {
 
 		float radius = MyRandom::getRandomFloat(1.0f, 1e3f);
 
-		entities.push_back(new CircEntity(position, velocity, radius * radius * radius, radius));
+		entities.push_back(new CircEntity(position, velocity, radius * radius * radius, Simulation::font, radius));
 	}
 
 	entities.push_back(new CircEntity(sf::Vector2f(0.0f, 0.0f), 
-									  sf::Vector2f(0.0f, 0.0f), 100000.0f * 100000.0f * 100000.0f, 100000.0f));
-}
-
-void Simulation::addCamVel(sf::Vector2f v) {
-	this->camera_velocity += v;
-}
-
-void Simulation::clearCamVel() {
-	this->camera_velocity = sf::Vector2f(0.0f, 0.0f);
-}
-
-void Simulation::setViewPosition(sf::Vector2f v) {
-	sf::View view = this->window->getView();
-	view.setCenter(v);
-	this->window->setView(view);
-}
-
-void Simulation::moveView(sf::Vector2f v) {
-	sf::View view = this->window->getView();
-	sf::Vector2f center = view.getCenter();
-
-	center.x += v.x * this->window->getSize().x / 1000.0f;
-	center.y += v.y * this->window->getSize().y / 1000.0f;
-
-	view.setCenter(center);
-	this->window->setView(view);
-}
-
-void Simulation::zoomView(float delta) {
-	if (delta == 0.0f)
-		return;
-
-	sf::View view = this->window->getView();
-	sf::Vector2f size = view.getSize();
-	std::cout << "size " << size.x << std::endl;
-	if (delta > 0) {
-		size.x /= delta;
-		size.y /= delta;
-	}
-	else {
-		size.x *= -delta;
-		size.y *= -delta;
-	}
-
-	view.setSize(size);
-	this->window->setView(view);
-}
-
-void Simulation::toggleCenter() {
-	this->center = !this->center;
+									  sf::Vector2f(0.0f, 0.0f), 100000.0f * 100000.0f * 100000.0f, Simulation::font, 100000.0f));
 }
 
 void Simulation::toggleTree() {
@@ -83,6 +36,16 @@ void Simulation::toggleTree() {
 void Simulation::toggleBarnesHut() {
 	this->quad_tree->toggleBarnesHut();
 	std::cout << "Toggled BarnesHut" << std::endl;
+}
+
+void Simulation::followPrevious() {
+	--this->followed_i %= this->entities.size();
+	this->camera.setFollowed(this->entities[this->followed_i]);
+}
+
+void Simulation::followNext() {
+	++this->followed_i %= this->entities.size();
+	this->camera.setFollowed(this->entities[this->followed_i]);
 }
 
 void Simulation::toggleAcc() {
@@ -100,22 +63,22 @@ void Simulation::pollEvents() {
 			case sf::Event::KeyPressed:
 				switch (event.key.code) {
 					case sf::Keyboard::A:
-						addCamVel(sf::Vector2f(-2.0f, 0.0f));
+						this->camera.move(Direction::LEFT);
 						break;
 					case sf::Keyboard::W:
-						addCamVel(sf::Vector2f(0.0f, -2.0f));
+						this->camera.move(Direction::UP);
 						break;
 					case sf::Keyboard::S:
-						addCamVel(sf::Vector2f(0.0f, 2.0f));
+						this->camera.move(Direction::DOWN);
 						break;
 					case sf::Keyboard::D:
-						addCamVel(sf::Vector2f(2.0f, 0.0f));
+						this->camera.move(Direction::RIGHT);
 						break;
 					case sf::Keyboard::P:
-						zoomView(2.0f);
+						this->camera.zoom(1.2f);
 						break;
 					case sf::Keyboard::L:
-						zoomView(-2.0f);
+						this->camera.zoom(0.8f);
 						break;
 					default:
 						break;
@@ -123,20 +86,6 @@ void Simulation::pollEvents() {
 				break;
 			case sf::Event::KeyReleased:
 				switch (event.key.code) {
-					case sf::Keyboard::A:
-						clearCamVel();
-						break;
-					case sf::Keyboard::W:
-						clearCamVel();
-						break;
-					case sf::Keyboard::S:
-						clearCamVel();
-						break;
-					case sf::Keyboard::D:
-						clearCamVel();
-						break;
-					case sf::Keyboard::Q:
-				
 					case sf::Keyboard::T:
 						toggleTree();
 						break;
@@ -146,11 +95,16 @@ void Simulation::pollEvents() {
 					case sf::Keyboard::B:
 						toggleBarnesHut();
 						break;
+					case sf::Keyboard::Q:
+						followPrevious();
+						break;
+					case sf::Keyboard::E:
+						followNext();
+						break;
 					default:
 						break;
 				}
 		}
-		moveView(this->camera_velocity);
 	}
 }
 
@@ -160,14 +114,17 @@ void Simulation::update() {
 	for (size_t i = 0; i < entities.size(); i++)
 		entities[i]->update();
 
+	this->camera.update();
+	this->window->setView(this->camera.getView());
+
 	for (size_t i = 0; i < entities.size(); i++)
 		if (!this->map.isInside(this->entities[i]->getPosition())) {
 			this->entities[i]->disable();
 			this->entities.erase(this->entities.begin() + i);
 			
-			if (this->center_entity == this->entities[i]) {
-				this->center_entity = nullptr;
-				this->center = false;
+			if (this->camera.getFollowed() == this->entities[i]) {
+				this->camera.setFollowed(nullptr);
+				this->camera.toggleFollow();
 			}
 			
 			i--;
@@ -196,9 +153,20 @@ void Simulation::render() {
 	window->display();
 }
 
+void Simulation::start() {
+	generateEntities();
+	this->quad_tree->build(this->entities);
+
+	assert(Simulation::font.loadFromFile("fonts/Universal.ttf"));
+
+	while (isRunning()) {
+		update();
+		render();
+	}
+}
+
 Simulation::Simulation(size_t entity_count) 
-	:ENTITY_COUNT(entity_count), draw_tree(false), camera_velocity(sf::Vector2f(0.0f, 0.0f)), 
-	center(false), center_entity(nullptr) {
+	:ENTITY_COUNT(entity_count), draw_tree(false), followed_i(0UL) {
 
 	this->entities = std::vector<CircEntity *>();
 
@@ -208,20 +176,10 @@ Simulation::Simulation(size_t entity_count)
 	//this->window = new sf::RenderWindow(sf::VideoMode(1280, 720), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 	this->window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 	this->window->setFramerateLimit(60);
-
+	this->camera = Camera(this->window);
 }
 
 Simulation::~Simulation() {
 	delete quad_tree;
 	delete window;
-}
-
-void Simulation::start() {
-	generateEntities();
-	this->quad_tree->build(this->entities);
-
-	while (isRunning()) {
-		update();
-		render();
-	}
 }

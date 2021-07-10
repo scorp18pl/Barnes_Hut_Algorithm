@@ -1,4 +1,7 @@
-﻿  main.cpp
-LINK : warning LNK4075: zignorowano opcję „/INCREMENTAL” z powodu określenia opcji „/PROFILE”
-Entity.obj : warning LNK4075: zignorowano opcję „/EDITANDCONTINUE” z powodu określenia opcji „/OPT:REF”
-  Barnes_Hut_Algorithm.vcxproj -> C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Debug\Barnes_Hut_Algorithm.exe
+﻿  Camera.cpp
+C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.cpp(80,9): error C2661: "Entity::Entity": brak przeciążonej funkcji przyjmującej 3 argumenty
+C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.cpp(85,9): error C2661: "Entity::Entity": brak przeciążonej funkcji przyjmującej 3 argumenty
+  Entity.cpp
+C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Entity.cpp(191,67): error C2661: "CircEntity::CircEntity": brak przeciążonej funkcji przyjmującej 3 argumenty
+  Simulation.cpp
+  Generowanie kodu...

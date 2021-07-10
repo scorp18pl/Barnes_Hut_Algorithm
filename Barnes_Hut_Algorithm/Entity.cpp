@@ -2,10 +2,9 @@
 
 const float Entity::G = 1e-3f;
 
-Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
-	:position(position), velocity(velocity), mass(mass), draw_acc(false) {
-	this->acceleration.x = 0.f;
-	this->acceleration.y = 0.f;
+Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font)
+	:position(position), velocity(velocity), mass(mass), debug_draw(false), font(font),
+	acceleration(0.0f, 0.0f) {
 }
 
 float Entity::getMass() {
@@ -66,6 +65,37 @@ sf::Vector2f Entity::GForce(float mass, sf::Vector2f position) {
 	return force_vec;
 }
 
+std::string Entity::toString() {
+	std::string s = "";
+
+	s += "Mass: ";
+	s += std::to_string(this->mass);
+	s += '\n';
+
+	s += "Position:";
+	s += '\n';
+	s += std::to_string(this->position.x);
+	s += ", ";
+	s += std::to_string(this->position.y);
+	s += '\n';
+
+	s += "Velocity:";
+	s += '\n';
+	s += std::to_string(this->velocity.x);
+	s += ", ";
+	s += std::to_string(this->velocity.y);
+	s += '\n';
+
+	s += "Acceleration:";
+	s += '\n';
+	s += std::to_string(this->acceleration.x);
+	s += ", ";
+	s += std::to_string(this->acceleration.y);
+	s += '\n';
+
+	return s;
+}
+
 void Entity::update() {
 	this->position.x += this->velocity.x;
 	this->position.y += this->velocity.y;
@@ -78,35 +108,70 @@ void Entity::draw(sf::RenderWindow *window) {
 }
 
 void Entity::toggleDrawAcc() {
-	if (this->draw_acc == false)
-		this->draw_acc = true;
-	else
-		this->draw_acc = false;
+	this->debug_draw = !this->debug_draw;
 }
 
 void CircEntity::draw(sf::RenderWindow* window) {
 	window->draw(this->shape);
 
-	if (!this->draw_acc)
+	if (!this->debug_draw)
 		return;
+	{
+		sf::Vector2f acc = this->position;
+		float norm = Q_rsqrt(this->acceleration.x * this->acceleration.x +
+							 this->acceleration.y * this->acceleration.y);
+		acc.x += this->shape.getRadius() * this->acceleration.x * norm;
+		acc.y += this->shape.getRadius() * this->acceleration.y * norm;
 
-	sf::Vector2f acc = this->position;
-	float norm = Q_rsqrt(this->acceleration.x * this->acceleration.x +
-								this->acceleration.y * this->acceleration.y);
-	acc.x += this->shape.getRadius() * this->acceleration.x * norm;
-	acc.y += this->shape.getRadius() * this->acceleration.y * norm;
+		sf::Vertex line[2] = {
+			sf::Vertex(this->position, sf::Color::Red),
+			sf::Vertex(acc, sf::Color::Red)
+		};
 
-	sf::Vertex line[2] = {
-		sf::Vertex(this->position, sf::Color::Red),
-		sf::Vertex(acc, sf::Color::Red)
-	};
+		window->draw(line, 2, sf::Lines);
 
-	window->draw(line, 2, sf::Lines);
+		sf::Text text;
+		text.setFont(this->font);
+		text.setFillColor(sf::Color::Red);
+		text.setPosition(acc);
+		text.setCharacterSize(24u);
+		text.setString(std::to_string(this->acceleration.x) + 
+					   ", " + std::to_string(this->acceleration.y));
+		window->draw(text);
+	}
+
+	{
+		sf::Vector2f vel = this->position;
+		float norm = Q_rsqrt(this->velocity.x * this->velocity.x +
+							 this->velocity.y * this->velocity.y);
+		vel.x += this->shape.getRadius() * this->velocity.x * norm;
+		vel.y += this->shape.getRadius() * this->velocity.y * norm;
+
+		sf::Vertex line[2] = {
+			sf::Vertex(this->position, sf::Color::Green),
+			sf::Vertex(vel, sf::Color::Green)
+		};
+
+		window->draw(line, 2, sf::Lines);
+
+		sf::Text text;
+		text.setFont(this->font);
+		text.setFillColor(sf::Color::Green);
+		text.setPosition(vel);
+		text.setCharacterSize(24u);
+		text.setString(std::to_string(this->velocity.x) +
+					   ", " + std::to_string(this->velocity.y));
+		window->draw(text);
+	}
 }
 
 void Entity::accelerate(sf::Vector2f force) {
 	this->acceleration.x += force.x / this->mass;
 	this->acceleration.y += force.y / this->mass;
+}
+
+void Entity::accelerate(float f_x, float f_y) {
+	accelerate(sf::Vector2f(f_x, f_y));
 }
 
 void Entity::zeroAcc() {
@@ -126,12 +191,13 @@ CircEntity::CircEntity()
 	:CircEntity(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), 0.f) {
 }
 
-CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
+CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font,
 							   float radius, sf::Color color)
-	:Entity(position, velocity, mass) {
+	:Entity(position, velocity, mass, font) {
 	this->shape.setPosition(Entity::position);
 	this->shape.setRadius(radius);
 	this->shape.setFillColor(color);
+	this->font = font;
 }
 
 CircEntity::~CircEntity() {
