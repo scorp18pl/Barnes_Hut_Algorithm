@@ -1,60 +1,11 @@
 ﻿  Camera.cpp
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,8): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,8): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,16): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(47,23): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(58,20): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(59,19): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(60,21): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(66,29): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(68,28): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(95,30): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(97,25): error C2065: "CircEntity": niezadeklarowany identyfikator
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(97,37): error C2059: błąd składniowy: „>”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(16,15): error C3646: "camera": nieznany specyfikator przesłonięcia
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(16,15): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,14): error C2065: "CircEntity": niezadeklarowany identyfikator
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,26): error C2059: błąd składniowy: „>”
   Entity.cpp
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,8): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,8): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(27,16): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(47,23): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(58,20): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(59,19): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(60,21): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(66,29): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(68,28): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(95,30): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(97,25): error C2065: "CircEntity": niezadeklarowany identyfikator
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Node.h(97,37): error C2059: błąd składniowy: „>”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(9,29): error C2504: „Entity”: klasa bazowa niezdefiniowana
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,9): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,9): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,18): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,9): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,9): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,23): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(23,26): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(30,7): error C3668: „Camera::update”: metoda ze specyfikatorem przesłonięcia „override” nie przesłania żadnej metody klasy bazowej
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,14): error C2065: "CircEntity": niezadeklarowany identyfikator
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,26): error C2059: błąd składniowy: „>”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Entity.cpp(138,25): warning C4244: "argument": konwersja z "float" do "unsigned int", możliwa utrata danych
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Entity.cpp(162,25): warning C4244: "argument": konwersja z "float" do "unsigned int", możliwa utrata danych
   main.cpp
   Node.cpp
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(9,29): error C2504: „Entity”: klasa bazowa niezdefiniowana
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,9): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,9): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(14,18): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,9): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,9): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(20,23): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(23,26): error C2061: błąd składniowy: identyfikator „Entity”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Camera.h(30,7): error C3668: „Camera::update”: metoda ze specyfikatorem przesłonięcia „override” nie przesłania żadnej metody klasy bazowej
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,14): error C2065: "CircEntity": niezadeklarowany identyfikator
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(20,26): error C2059: błąd składniowy: „>”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(22,11): error C2143: błąd składniowy: brakuje „;” przed „*”
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(22,11): error C4430: brak specyfikatora typu - założono, że int. Uwaga: C++ nie obsługuje domyślnie typu int
-C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Barnes_Hut_Algorithm\Simulation.h(22,21): error C2238: nieoczekiwany(e) token(y) poprzedzający(e) ";"
   Simulation.cpp
+  Trwa generowanie kodu
+  66 of 306 functions (21.6%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
+    7 functions had inline decision re-evaluated but remain unchanged
+  Zakończono generowanie kodu
+  Barnes_Hut_Algorithm.vcxproj -> C:\Users\W10\source\repos\Barnes_Hut_Algorithm\Release\Barnes_Hut_Algorithm.exe

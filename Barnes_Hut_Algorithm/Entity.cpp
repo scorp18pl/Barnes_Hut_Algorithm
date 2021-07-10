@@ -2,8 +2,8 @@
 
 const float Entity::G = 1e-3f;
 
-Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font)
-	:position(position), velocity(velocity), mass(mass), debug_draw(false), font(font),
+Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
+	:position(position), velocity(velocity), mass(mass), debug_draw(false),
 	acceleration(0.0f, 0.0f) {
 }
 
@@ -129,15 +129,6 @@ void CircEntity::draw(sf::RenderWindow* window) {
 		};
 
 		window->draw(line, 2, sf::Lines);
-
-		sf::Text text;
-		text.setFont(this->font);
-		text.setFillColor(sf::Color::Red);
-		text.setPosition(acc);
-		text.setCharacterSize(24u);
-		text.setString(std::to_string(this->acceleration.x) + 
-					   ", " + std::to_string(this->acceleration.y));
-		window->draw(text);
 	}
 
 	{
@@ -153,15 +144,6 @@ void CircEntity::draw(sf::RenderWindow* window) {
 		};
 
 		window->draw(line, 2, sf::Lines);
-
-		sf::Text text;
-		text.setFont(this->font);
-		text.setFillColor(sf::Color::Green);
-		text.setPosition(vel);
-		text.setCharacterSize(24u);
-		text.setString(std::to_string(this->velocity.x) +
-					   ", " + std::to_string(this->velocity.y));
-		window->draw(text);
 	}
 }
 
@@ -191,9 +173,9 @@ CircEntity::CircEntity()
 	:CircEntity(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), 0.f) {
 }
 
-CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font,
+CircEntity::CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
 							   float radius, sf::Color color)
-	:Entity(position, velocity, mass, font) {
+	:Entity(position, velocity, mass) {
 	this->shape.setPosition(Entity::position);
 	this->shape.setRadius(radius);
 	this->shape.setFillColor(color);

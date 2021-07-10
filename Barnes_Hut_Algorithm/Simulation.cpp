@@ -22,11 +22,11 @@ void Simulation::generateEntities() {
 
 		float radius = MyRandom::getRandomFloat(1.0f, 1e3f);
 
-		entities.push_back(new CircEntity(position, velocity, radius * radius * radius, Simulation::font, radius));
+		entities.push_back(new CircEntity(position, velocity, radius * radius * radius, radius));
 	}
 
 	entities.push_back(new CircEntity(sf::Vector2f(0.0f, 0.0f), 
-									  sf::Vector2f(0.0f, 0.0f), 100000.0f * 100000.0f * 100000.0f, Simulation::font, 100000.0f));
+									  sf::Vector2f(0.0f, 0.0f), 100000.0f * 100000.0f * 100000.0f, 100000.0f));
 }
 
 void Simulation::toggleTree() {

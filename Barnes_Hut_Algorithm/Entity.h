@@ -39,7 +39,7 @@ public:
 	virtual void toggleDrawAcc();
 
 	//Constructors and destructors
-	Entity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font);
+	Entity(sf::Vector2f position, sf::Vector2f velocity, float mass);
 };
 
 class CircEntity : public Entity{
@@ -52,7 +52,7 @@ public:
 
 	CircEntity();
 
-	CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass, sf::Font font,
+	CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
 				   float radius = 4.0f, sf::Color color = sf::Color::White);
 
 	~CircEntity();
