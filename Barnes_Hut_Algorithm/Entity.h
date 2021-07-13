@@ -7,15 +7,19 @@
 
 #include "SFML/Graphics.hpp"
 #include "OmniMath.h"
+#include "Tracker.h"
 
 class Entity {
 protected:
 	sf::Font font;
-	bool debug_draw;
+	static bool debug_draw;
+	static bool tracker_draw;
 
 	static const float G;
 	float mass;
 	sf::Vector2f position, velocity, acceleration;
+	Tracker tracker;
+	
 public:
 	//Getters and setters
 	float getMass();
@@ -36,7 +40,9 @@ public:
 
 	//drawing
 	virtual void draw(sf::RenderWindow *window);
-	virtual void toggleDrawAcc();
+	static void toggleDebugDraw();
+	void clearTracker();
+	static void toggleTrackerDraw();
 
 	//Constructors and destructors
 	Entity(sf::Vector2f position, sf::Vector2f velocity, float mass);
@@ -57,5 +63,5 @@ public:
 
 	~CircEntity();
 
-	void update();
+	void update() override;
 };

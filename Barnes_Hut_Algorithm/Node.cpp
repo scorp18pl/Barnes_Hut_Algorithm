@@ -79,10 +79,9 @@ bool Node::isSimplest() {
 sf::Vector2f Node::getChildPosition(Quadrant q) {
 	sf::Vector2f return_v = sf::Vector2f(this->position);
 
+	assert(q != Quadrant::ERROR);
+
 	switch (q) {
-		case Quadrant::ERROR:
-			std::cout << "Invalid q" << std::endl;
-			break;
 		case Quadrant::NORTH_WEST:
 			return return_v;
 		case Quadrant::NORTH_EAST:
@@ -122,9 +121,6 @@ Quadrant Node::checkQuadrant(sf::Vector2f position) {
 }
 
 void Node::updateMass() {
-	if (this == nullptr)
-		return;
-
 	if (!isEmpty()) {
 		mass = this->entity->getMass();
 		return;
@@ -132,9 +128,10 @@ void Node::updateMass() {
 
 	float sum = 0.0f;
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++) {
-		this->children[i]->updateMass();
-		if (this->children[i] != nullptr)
+		if (this->children[i] != nullptr) {
+			this->children[i]->updateMass();
 			sum += this->children[i]->getMass();
+		}
 	}
 
 	this->mass = sum;
@@ -176,9 +173,6 @@ void Node::updateCenterOfMass() {
 }
 
 void Node::update() {
-	if (this == nullptr)
-		return;
-
 	if (!isEmpty()) {
 		if (this->entity->isDisabled()) {
 			delete this->entity;
@@ -192,7 +186,8 @@ void Node::update() {
 	}
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->update();
+		if (this->children[i] != nullptr)
+			this->children[i]->update();
 }
 
 void Node::pushQ(Entity *entity, Quadrant q) {
@@ -268,29 +263,23 @@ void Node::branchRemove(sf::Vector2f child_position, bool set_to_nullptr) {
 }
 
 void Node::setOutlineThickness(float thickness) {
-	if (this == nullptr)
-		return;
-
 	this->shape.setOutlineThickness(thickness);
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->setOutlineThickness(thickness);
+		if (this->children[i] != nullptr)
+			this->children[i]->setOutlineThickness(thickness);
 }
 
 void Node::draw(sf::RenderWindow *window) {
-	if (this == nullptr)
-		return;
 	//if (!isEmpty())
 	window->draw(this->shape);
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->draw(window);
+		if (this->children[i] != nullptr)
+			this->children[i]->draw(window);
 }
 
 void Node::calculateForce(Entity *entity, bool barnes_hut) {
-	if (this == nullptr)
-		return;
-
 	if (!isEmpty() && entity != this->entity) {
 		entity->accelerate(entity->GForce(this->entity->getMass(), this->entity->getPosition()));
 		return;
@@ -302,7 +291,8 @@ void Node::calculateForce(Entity *entity, bool barnes_hut) {
 	}
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->children[i]->calculateForce(entity, barnes_hut);
+		if (this->children[i] != nullptr)
+			this->children[i]->calculateForce(entity, barnes_hut);
 }
 
 bool Node::isCloseEnough(Entity *entity) {
@@ -310,12 +300,10 @@ bool Node::isCloseEnough(Entity *entity) {
 }
 
 int Node::countEntities() {
-	if (this == nullptr)
-		return 0;
-
 	int sum = 0;
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		sum += this->children[i]->countEntities();
+		if (this->children[i] != nullptr)
+			sum += this->children[i]->countEntities();
 
 	if (!this->isEmpty())
 		sum++;

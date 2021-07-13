@@ -30,10 +30,14 @@ private:
 
 	void toggleTree();
 	void toggleAcc();
+	void toggleTrackers();
+	void toggleTrackerLimit();
 	void toggleBarnesHut();
 
 	void followPrevious();
 	void followNext();
+	void disableFollow();
+	void clearTrackers();
 
 	void pollEvents();
 	void update();

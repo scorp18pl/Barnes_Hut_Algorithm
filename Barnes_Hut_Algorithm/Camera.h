@@ -21,6 +21,7 @@ public:
 
 	void clearMovement();
 	void setFollowed(Entity *followed);
+	void disableFollow();
 
 	//Various
 	void toggleFollow();

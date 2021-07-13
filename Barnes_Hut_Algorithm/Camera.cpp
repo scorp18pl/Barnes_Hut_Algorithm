@@ -21,6 +21,10 @@ void Camera::setFollowed(Entity *followed) {
 	this->followed = followed;
 }
 
+void Camera::disableFollow() {
+	this->follow = false;
+}
+
 void Camera::toggleFollow() {
 	this->follow = !this->follow;
 }
@@ -46,6 +50,7 @@ void Camera::zoom(float delta) {
 void Camera::move(Direction d) {
 	float div = this->view.getSize().x / 1e3f;
 	float force = Camera::FORCE * div;
+
 	switch (d) {
 		case Direction::UP:
 			this->accelerate(sf::Vector2f(0.0f, -force));

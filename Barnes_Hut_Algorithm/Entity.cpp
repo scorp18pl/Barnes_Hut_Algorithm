@@ -2,8 +2,11 @@
 
 const float Entity::G = 1e-3f;
 
+bool Entity::debug_draw = false;
+bool Entity::tracker_draw = false;
+
 Entity::Entity(sf::Vector2f position, sf::Vector2f velocity, float mass)
-	:position(position), velocity(velocity), mass(mass), debug_draw(false),
+	:position(position), velocity(velocity), mass(mass),
 	acceleration(0.0f, 0.0f) {
 }
 
@@ -59,8 +62,8 @@ sf::Vector2f Entity::GForce(float mass, sf::Vector2f position) {
 	dist_inv = Q_rsqrt(square_dist);
 
 	float base = force * dist_inv;
-	force_vec.x = base * abs(x_diff) * sign_x;
-	force_vec.y = base * abs(y_diff) * sign_y;
+	force_vec.x = base * std::abs(x_diff) * sign_x;
+	force_vec.y = base * std::abs(y_diff) * sign_y;
 
 	return force_vec;
 }
@@ -102,19 +105,33 @@ void Entity::update() {
 
 	this->velocity.x += this->acceleration.x;
 	this->velocity.y += this->acceleration.y;
+
+	this->tracker.addVertex(this->position);
+	this->tracker.addVertex(this->position);
 }
 
 void Entity::draw(sf::RenderWindow *window) {
 }
 
-void Entity::toggleDrawAcc() {
-	this->debug_draw = !this->debug_draw;
+void Entity::toggleDebugDraw() {
+	Entity::debug_draw = !Entity::debug_draw;
+}
+
+void Entity::clearTracker() {
+	this->tracker.clear();
+}
+
+void Entity::toggleTrackerDraw() {
+	Entity::tracker_draw = !Entity::tracker_draw;
 }
 
 void CircEntity::draw(sf::RenderWindow* window) {
 	window->draw(this->shape);
 
-	if (!this->debug_draw)
+	if (Entity::tracker_draw)
+		this->tracker.draw(window);
+
+	if (!Entity::debug_draw)
 		return;
 	{
 		sf::Vector2f acc = this->position;

@@ -48,9 +48,25 @@ void Simulation::followNext() {
 	this->camera.setFollowed(this->entities[this->followed_i]);
 }
 
-void Simulation::toggleAcc() {
+void Simulation::disableFollow() {
+	this->camera.disableFollow();
+}
+
+void Simulation::clearTrackers() {
 	for (size_t i = 0; i < this->entities.size(); i++)
-		this->entities[i]->toggleDrawAcc();
+		this->entities[i]->clearTracker();
+}
+
+void Simulation::toggleAcc() {
+	Entity::toggleDebugDraw();
+}
+
+void Simulation::toggleTrackers() {
+	Entity::toggleTrackerDraw();
+}
+
+void Simulation::toggleTrackerLimit() {
+	Tracker::toggleLimit();
 }
 
 void Simulation::pollEvents() {
@@ -101,9 +117,23 @@ void Simulation::pollEvents() {
 					case sf::Keyboard::E:
 						followNext();
 						break;
+					case sf::Keyboard::Z:
+						disableFollow();
+						break;
+					case sf::Keyboard::G:
+						toggleTrackers();
+						break;
+					case sf::Keyboard::C:
+						clearTrackers();
+						break;
+					case sf::Keyboard::I:
+						toggleTrackerLimit();
+						break;
 					default:
 						break;
 				}
+			default:
+				break;
 		}
 	}
 }
