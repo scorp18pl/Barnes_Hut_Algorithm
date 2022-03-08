@@ -207,6 +207,7 @@ Simulation::Simulation(size_t entity_count)
 	this->window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 	this->window->setFramerateLimit(60);
 	this->camera = Camera(this->window);
+	this->camera.zoom(1.0e-3f);
 }
 
 Simulation::~Simulation() {
