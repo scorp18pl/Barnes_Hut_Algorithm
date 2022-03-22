@@ -1,11 +1,14 @@
 # Barnes_Hut_Algorithm
-`Barnes Hut Algorithm` with the brute force algorithm.
-It also has a few tools for visualising the inner workings of the algorithm.
+This project implements the `Barnes Hut Algorithm` that uses quadtrees to achieve
+`O(n log n)` time complexity. It allows for comparison with the brute force algorithm 
+with time complexity `O(n^2)`. The goal of this project was practicing the C++ development
+and data structures.
+It also implements a few tools for visualising the inner workings of the algorithm.
 
 # Controls
 
 * General
-    - `B` - toggle between the `Barnes Hut` and brute force algorithm
+    - `B` - toggle between the `Barnes Hut` and the brute force algorithm
 * Camera movement
     - `W` - move up
     - `A` - move left
