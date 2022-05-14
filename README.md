@@ -6,7 +6,7 @@ that has a time complexity of `O(n^2)`. The goal of this project was practicing 
 and data structures (as well as playing with some basic physics).
 It also implements a few tools for visualising the inner workings of the algorithm.
 
-# Controls
+## Controls
 
 * General
     - `B` - toggle between the `Barnes Hut` and the brute force algorithm
