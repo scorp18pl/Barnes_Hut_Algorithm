@@ -396,3 +396,17 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# various
+
+*.diagsession
+*.sln
+.vs
+Debug
+External
+Release
+Barnes_Hut_Algorithm/Debug
+Barnes_Hut_Algorithm/Release
+*.vcxproj*
+*.dll
+*.hint
