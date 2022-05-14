@@ -1,8 +1,9 @@
 # Barnes_Hut_Algorithm
-This project implements the `Barnes Hut Algorithm` that uses quadtrees to achieve
-`O(n log n)` time complexity. It allows for comparison with the brute force algorithm 
-with time complexity `O(n^2)`. The goal of this project was practicing the C++ development
-and data structures.
+This project simulates gravity force interactions between many entities. To this end it
+implements the `Barnes Hut Algorithm` which uses quadtrees to achieve
+`O(n log n)` time complexity. This project also allows the user to compare it with the brute force algorithm 
+that has a time complexity of `O(n^2)`. The goal of this project was practicing the C++ development
+and data structures (as well as playing with some basic physics).
 It also implements a few tools for visualising the inner workings of the algorithm.
 
 # Controls
