@@ -410,3 +410,5 @@ Barnes_Hut_Algorithm/Release
 *.vcxproj*
 *.dll
 *.hint
+
+Barnes_Hut_Algorithm/Graphics*
