@@ -40,7 +40,7 @@ Then you will have to install sfml
 $ sudo apt-get install libsfml-dev
 ```
 
-After that create a build folder () and head to it
+After that create a build folder (inside of the root repo folder) and head to it
 ```console
 $ mkdir build && cd build
 $ cmake .. && make
