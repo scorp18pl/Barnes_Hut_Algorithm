@@ -7,7 +7,7 @@
 #include "Entity.h"
 
 enum class Quadrant{
-	ERROR = -1, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST
+	NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST
 };
 
 class Node {

@@ -4,8 +4,6 @@ const float Node::PHI = 0.5f;
 
 //Sets a quadrant child node to nullptr.
 void Node::setChildToNull(Quadrant quadrant) {
-	assert(quadrant != Quadrant::ERROR);
-
 	this->children[(int)quadrant] = nullptr;
 }
 
@@ -79,8 +77,6 @@ bool Node::isSimplest() {
 sf::Vector2f Node::getChildPosition(Quadrant q) {
 	sf::Vector2f return_v = sf::Vector2f(this->position);
 
-	assert(q != Quadrant::ERROR);
-
 	switch (q) {
 		case Quadrant::NORTH_WEST:
 			return return_v;
@@ -90,7 +86,7 @@ sf::Vector2f Node::getChildPosition(Quadrant q) {
 		case Quadrant::SOUTH_WEST:
 			return_v.y += this->side_length / 2.0f;
 			return return_v;
-		case Quadrant::SOUTH_EAST:
+		default:
 			return_v.x += this->side_length / 2.0f;
 			return_v.y += this->side_length / 2.0f;
 			return return_v;
@@ -191,8 +187,6 @@ void Node::update() {
 }
 
 void Node::pushQ(Entity *entity, Quadrant q) {
-	assert(q != Quadrant::ERROR);
-
 	if (this->children[(int)q] == nullptr) {
 		sf::Vector2f position = this->getChildPosition(q);
 		float side_length = this->side_length / 2.0f;

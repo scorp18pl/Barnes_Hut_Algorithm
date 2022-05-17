@@ -27,3 +27,23 @@ It also implements a few tools for visualising the inner workings of the algorit
     - `G` - toggle entity trackers
     - `C` - clear the entity trackers
     - `I` - toggle the entity tracker point limit
+
+## Configuration
+
+First, clone the repository using
+```console
+$ git clone https://github.com/scorp18pl/Barnes_Hut_Algorithm
+```
+Then you will have to install sfml
+
+```console
+$ sudo apt-get install libsfml-dev
+```
+
+After that create a build folder () and head to it
+```console
+$ mkdir build && cd build
+$ cmake .. && make
+```
+The bha file inside the build directory is the binary 
+used to run the program.

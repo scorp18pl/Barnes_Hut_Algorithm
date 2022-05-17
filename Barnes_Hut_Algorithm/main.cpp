@@ -1,15 +1,16 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Network.hpp>
 #include "Simulation.h"
 
 
 int main() {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	std::cout << "Please enter the entity count." << std::endl;
+	std::cout << "For good performance this number should be less than 5000." << std::endl;
+	unsigned long ecount;
+	std::cin >> ecount;
 
-	Simulation sim = Simulation(5000ul);
+	Simulation sim = Simulation(ecount);
 	sim.start();
 	return 0;
 }

@@ -1,7 +1,5 @@
 #include "Simulation.h"
 
-sf::Font Simulation::font;
-
 bool Simulation::isRunning() {
 	return this->window->isOpen();
 }
@@ -186,8 +184,6 @@ void Simulation::render() {
 void Simulation::start() {
 	generateEntities();
 	this->quad_tree->build(this->entities);
-
-	assert(Simulation::font.loadFromFile("fonts/Universal.ttf"));
 
 	while (isRunning()) {
 		update();

@@ -43,8 +43,6 @@ private:
 	void update();
 	void render();
 public:
-	static sf::Font font;
-
 	//Constructors and destructors
 	Simulation(size_t entity_count);
 	~Simulation();
