@@ -265,7 +265,6 @@ void Node::setOutlineThickness(float thickness) {
 }
 
 void Node::draw(sf::RenderWindow *window) {
-	//if (!isEmpty())
 	window->draw(this->shape);
 
 	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
@@ -362,15 +361,11 @@ Node *QuadTree::getTree() {
 }
 
 void QuadTree::update() {
-	//std::cout << "There are " << this->tree->countEntities() << " entities in the tree" << std::endl;
 	this->tree->update();
 	stackClear();
 
 	this->tree->updateMass();
 	this->tree->updateCenterOfMass();
-	//std::cout << "Tree mass == " << this->tree->getMass() << std::endl;
-	//sf::Vector2f center = this->tree->getCenterOfMass();
-	//std::cout << "Tree mass center == " << center.x << ", " << center.y << std::endl;
 }
 
 void QuadTree::toggleBarnesHut() {
@@ -393,9 +388,4 @@ void QuadTree::draw(sf::RenderWindow *window) {
 		tree->setOutlineThickness(window->getView().getSize().x / 1000.0f);
 		tree->draw(window);
 	}
-
-	//sf::CircleShape center = sf::CircleShape(10.0f);
-	//center.setPosition(this->tree->getCenterOfMass());
-	//center.setFillColor(sf::Color::Red);
-	//window->draw(center);
 }

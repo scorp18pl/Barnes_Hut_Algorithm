@@ -25,8 +25,6 @@ private:
 	sf::RenderWindow* window;
 
 	void generateEntities();
-	//sf::Vector2f getSmallCoordinates();
-	//sf::Vector2f getBigCoordinates();
 
 	void toggleTree();
 	void toggleAcc();

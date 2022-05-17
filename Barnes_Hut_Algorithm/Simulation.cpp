@@ -158,8 +158,6 @@ void Simulation::update() {
 			i--;
 		}
 
-	std::cout << "There are " << this->entities.size() << " entities." << std::endl;
-
 	this->quad_tree->update();
 
 	for (size_t i = 0; i < entities.size(); i++)
@@ -198,8 +196,6 @@ Simulation::Simulation(size_t entity_count)
 
 	this->quad_tree = new QuadTree(nullptr, this->map.getStartingPosition(), this->map.getSide());
 
-	//Window Setup
-	//this->window = new sf::RenderWindow(sf::VideoMode(1280, 720), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 	this->window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Simulation", sf::Style::Titlebar | sf::Style::Close);
 	this->window->setFramerateLimit(60);
 	this->camera = Camera(this->window);
