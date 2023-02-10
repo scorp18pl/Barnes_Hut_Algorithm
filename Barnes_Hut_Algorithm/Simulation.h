@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <memory>
 #include "MyRandom.h"
 #include "Map.h"
 #include "Entity.h"
@@ -17,7 +18,7 @@ private:
 
 	const size_t ENTITY_COUNT = 32;
 	bool draw_tree;
-	std::vector<CircEntity *> entities;
+	std::vector<std::shared_ptr<CircEntity>> entities;
 
 	QuadTree *quad_tree;
 
@@ -40,6 +41,8 @@ private:
 	void pollEvents();
 	void update();
 	void render();
+
+    std::vector<Entity *> getEntityPointers();
 public:
 	//Constructors and destructors
 	Simulation(size_t entity_count);

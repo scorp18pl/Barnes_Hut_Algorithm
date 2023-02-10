@@ -32,8 +32,8 @@ public:
 	sf::Vector2f GForce(float mass, sf::Vector2f position);
 	std::string toString();
 
-	void accelerate(sf::Vector2f force);
-	void accelerate(float f_x, float f_y);
+	void applyForce(sf::Vector2f force);
+	void applyForce(float f_x, float f_y);
 
 	void zeroAcc();
 	virtual void update();

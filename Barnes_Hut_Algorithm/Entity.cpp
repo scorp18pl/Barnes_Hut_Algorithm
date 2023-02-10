@@ -164,13 +164,13 @@ void CircEntity::draw(sf::RenderWindow* window) {
 	}
 }
 
-void Entity::accelerate(sf::Vector2f force) {
+void Entity::applyForce(sf::Vector2f force) {
 	this->acceleration.x += force.x / this->mass;
 	this->acceleration.y += force.y / this->mass;
 }
 
-void Entity::accelerate(float f_x, float f_y) {
-	accelerate(sf::Vector2f(f_x, f_y));
+void Entity::applyForce(float f_x, float f_y) {
+    applyForce(sf::Vector2f(f_x, f_y));
 }
 
 void Entity::zeroAcc() {

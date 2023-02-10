@@ -8,7 +8,7 @@ sf::View Camera::getView() {
 }
 
 Entity *Camera::getFollowed() {
-	return this->followed;
+	return this->followedEntity;
 }
 
 void Camera::clearMovement() {
@@ -18,7 +18,7 @@ void Camera::clearMovement() {
 
 void Camera::setFollowed(Entity *followed) {
 	this->follow = true;
-	this->followed = followed;
+	this->followedEntity = followed;
 }
 
 void Camera::disableFollow() {
@@ -53,16 +53,16 @@ void Camera::move(Direction d) {
 
 	switch (d) {
 		case Direction::UP:
-			this->accelerate(sf::Vector2f(0.0f, -force));
+            this->applyForce(sf::Vector2f(0.0f, -force));
 			break;
 		case Direction::RIGHT:
-			this->accelerate(sf::Vector2f(force, 0.0f));
+            this->applyForce(sf::Vector2f(force, 0.0f));
 			break;
 		case Direction::DOWN:
-			this->accelerate(sf::Vector2f(0.0f, force));
+            this->applyForce(sf::Vector2f(0.0f, force));
 			break;
 		case Direction::LEFT:
-			this->accelerate(sf::Vector2f(-force, 0.0f));
+            this->applyForce(sf::Vector2f(-force, 0.0f));
 			break;
 		default:
 			break;
@@ -71,7 +71,7 @@ void Camera::move(Direction d) {
 
 void Camera::update() {
 	if (this->follow)
-		this->position = this->followed->getPosition();
+		this->position = this->followedEntity->getPosition();
 	else {
 		Entity::update();
 		this->acceleration = sf::Vector2f(-this->velocity.x * Camera::FRICTION, 
@@ -82,13 +82,13 @@ void Camera::update() {
 }
 
 Camera::Camera()
-	:Entity(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(0.0f, 0.0f), 1.0f),
-	follow(false), view(sf::View()), followed(nullptr) {
+	: Entity(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(0.0f, 0.0f), 1.0f),
+      follow(false), view(sf::View()), followedEntity(nullptr) {
 }
 
 Camera::Camera(sf::RenderWindow *window)
-	:Entity(window->getView().getCenter(), sf::Vector2f(0.0f, 0.0f), 1.0f), 
-	follow(false), view(window->getView()), followed(nullptr) {
+	: Entity(window->getView().getCenter(), sf::Vector2f(0.0f, 0.0f), 1.0f),
+      follow(false), view(window->getView()), followedEntity(nullptr) {
 }
 
 Camera::~Camera() {

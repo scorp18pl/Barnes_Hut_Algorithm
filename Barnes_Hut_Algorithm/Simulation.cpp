@@ -20,10 +20,10 @@ void Simulation::generateEntities() {
 
 		float radius = MyRandom::getRandomFloat(1.0f, 1e3f);
 
-		entities.push_back(new CircEntity(position, velocity, radius * radius * radius, radius));
+		entities.emplace_back(new CircEntity(position, velocity, radius * radius * radius, radius));
 	}
 
-	entities.push_back(new CircEntity(sf::Vector2f(0.0f, 0.0f), 
+	entities.emplace_back(new CircEntity(sf::Vector2f(0.0f, 0.0f),
 									  sf::Vector2f(0.0f, 0.0f), 100000.0f * 100000.0f * 100000.0f, 100000.0f));
 }
 
@@ -37,22 +37,22 @@ void Simulation::toggleBarnesHut() {
 }
 
 void Simulation::followPrevious() {
-	--this->followed_i %= this->entities.size();
-	this->camera.setFollowed(this->entities[this->followed_i]);
+	--followed_i %= entities.size();
+	camera.setFollowed(entities[followed_i].get());
 }
 
 void Simulation::followNext() {
-	++this->followed_i %= this->entities.size();
-	this->camera.setFollowed(this->entities[this->followed_i]);
+	++followed_i %= entities.size();
+	camera.setFollowed(entities[followed_i].get());
 }
 
 void Simulation::disableFollow() {
-	this->camera.disableFollow();
+	camera.disableFollow();
 }
 
 void Simulation::clearTrackers() {
-	for (size_t i = 0; i < this->entities.size(); i++)
-		this->entities[i]->clearTracker();
+	for (size_t i = 0; i < entities.size(); i++)
+		entities[i]->clearTracker();
 }
 
 void Simulation::toggleAcc() {
@@ -142,46 +142,54 @@ void Simulation::update() {
 	for (size_t i = 0; i < entities.size(); i++)
 		entities[i]->update();
 
-	this->camera.update();
-	this->window->setView(this->camera.getView());
+	camera.update();
+	window->setView(camera.getView());
 
-	for (size_t i = 0; i < entities.size(); i++)
-		if (!this->map.isInside(this->entities[i]->getPosition())) {
-			this->entities[i]->disable();
-			this->entities.erase(this->entities.begin() + i);
-			
-			if (this->camera.getFollowed() == this->entities[i]) {
-				this->camera.setFollowed(nullptr);
-				this->camera.toggleFollow();
+	for (auto entity = entities.begin(); entity != entities.end(); ++entity)
+		if ((*entity)->isDisabled()) {
+			if (camera.getFollowed() == (*entity).get()) {
+                camera.setFollowed(nullptr);
+				camera.toggleFollow();
 			}
-			
-			i--;
+
+            entities.erase(entity);
 		}
 
 	this->quad_tree->update();
 
 	for (size_t i = 0; i < entities.size(); i++)
-		this->entities[i]->zeroAcc();
+		entities[i]->zeroAcc();
 
 	for (size_t i = 0; i < entities.size(); i++)
-		this->quad_tree->calculateForces(this->entities[i]);
+		quad_tree->calculateForces(entities[i].get());
 }
 
 void Simulation::render() {
 	window->clear();
 
 	for (size_t i = 0; i < entities.size(); i++)
-		entities[i]->draw(this->window);
+		entities[i]->draw(window);
 	
-	if (this->draw_tree)
-		quad_tree->draw(this->window);
+	if (draw_tree)
+		quad_tree->draw(window);
 
 	window->display();
 }
 
+std::vector<Entity *> Simulation::getEntityPointers() {
+    std::vector<Entity *> entityPointers;
+    entityPointers.reserve(entities.size());
+
+    for (const auto& entity : entities) {
+        entityPointers.push_back(entity.get());
+    }
+
+    return entityPointers;
+}
+
 void Simulation::start() {
 	generateEntities();
-	this->quad_tree->build(this->entities);
+	quad_tree->build(getEntityPointers());
 
 	while (isRunning()) {
 		update();
@@ -192,14 +200,12 @@ void Simulation::start() {
 Simulation::Simulation(size_t entity_count) 
 	:ENTITY_COUNT(entity_count), draw_tree(false), followed_i(0UL) {
 
-	this->entities = std::vector<CircEntity *>();
+	quad_tree = new QuadTree(this->map.getStartingPosition(), this->map.getSide());
 
-	this->quad_tree = new QuadTree(nullptr, this->map.getStartingPosition(), this->map.getSide());
-
-	this->window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Simulation", sf::Style::Titlebar | sf::Style::Close);
-	this->window->setFramerateLimit(60);
-	this->camera = Camera(this->window);
-	this->camera.zoom(1.0e-3f);
+	window = new sf::RenderWindow(sf::VideoMode(3840, 2160), "Simulation", sf::Style::Titlebar | sf::Style::Close);
+	window->setFramerateLimit(60);
+	camera = Camera(this->window);
+	camera.zoom(1.0e-3f);
 }
 
 Simulation::~Simulation() {

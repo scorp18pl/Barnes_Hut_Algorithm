@@ -11,7 +11,7 @@ private:
 	static float FRICTION, FORCE, MAX_V;
 
 	bool follow;
-	Entity *followed;
+	Entity* followedEntity;
 
 	sf::View view;
 public:
@@ -20,7 +20,7 @@ public:
 	Entity *getFollowed();
 
 	void clearMovement();
-	void setFollowed(Entity *followed);
+	void setFollowed(Entity *followedEntity);
 	void disableFollow();
 
 	//Various

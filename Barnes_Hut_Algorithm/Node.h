@@ -6,8 +6,12 @@
 
 #include "Entity.h"
 
-enum class Quadrant{
-	NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST
+enum Quadrant : int {
+    OUT_OF_BOUNDS = -1,
+	NORTH_WEST = 0,
+    NORTH_EAST = 1,
+    SOUTH_WEST = 2,
+    SOUTH_EAST = 3,
 };
 
 class Node {
@@ -24,45 +28,74 @@ private:
 	float mass;
 	sf::Vector2f center_of_mass;
 
-	Entity* entity;
+	Entity* assignedEntity;
 
 	//Parent
 	Node *parent;
 
 	//Children
-	Node *children[CHILDREN_COUNT];
+	Node *subquadrants[CHILDREN_COUNT];
 	
 	sf::RectangleShape shape;
 	
 	//Methods
+    //! Sets a quadrant child node to nullptr.
 	void setChildToNull(Quadrant quadrant);
-	
+
+    //! The node is empty when it has no assigned entity.
 	bool isEmpty();
 
+    bool isRoot() const;
+
+    //! Returns whether or not a node has subquadrants.
 	bool hasNoChildren();
+
+    //! Returns whether or not quadrant is the only
+    //! child of the node.
 	bool otherAreNull(Quadrant quadrant);
+
+    //! Returns whether or not the node has only a one child.
 	bool hasOnlyOneChild();
 
 	bool outOfReach(sf::Vector2f position);
+
+    //! Returns whether or not given entity is contained
+    //! within the bounds of the node.
 	bool isInside(Entity *entity);
+
+    //! Returns whether or not entity assigned to the node
+    //! is contained within the bounds of the node.
 	bool isEntityInside();
+
+    //! Returns whether or not a leaf node should be deleted
+    //! and the entity moved up the tree.
 	bool isSimplest();
 
 	sf::Vector2f getChildPosition(Quadrant q);
-	Quadrant checkQuadrant(sf::Vector2f position);
+
+    //! Returns the quadrant in which given position is
+    //! situated. Considered quadrants' coordinate intervals
+    //! are in the form [a, b) and [b, c] (for each).
+	Quadrant selectQuadrant(sf::Vector2f position);
 public:
 	void update();
 	void updateMass();
 	void updateCenterOfMass();
 
-	void pushQ(Entity *entity, Quadrant q);
+    void ensureQuadrantExists(Quadrant quadrant);
 	void push(Entity *entity);
-	void moveUp(Entity *entity, sf::Vector2f child_position, bool set_to_nullptr);
+
+    //! Recursively moves the entity up the quadtree until it
+    //! it is contained within the node .
+    //! @param removeSubquadrant Should the subquadrant be removed?
+	void moveUp(Entity *entity, sf::Vector2f subquadrantPosition, bool removeSubquadrant);
 	void branchRemove(sf::Vector2f child_position, bool set_to_nullptr);
 
 	void setOutlineThickness(float thickness);
 	void draw(sf::RenderWindow *window);
 
+    //! Recursively calculates forces for all
+    //! bodies.
 	void calculateForce(Entity *entity, bool barnes_hut);
 
 	bool isCloseEnough(Entity *entity);
@@ -94,12 +127,12 @@ public:
 	void toggleBarnesHut();
 	void calculateForces(Entity *entity);
 	
-	void build(std::vector<CircEntity *> entities);
+	void build(std::vector<Entity *> entities);
 	void draw(sf::RenderWindow *window);
 
 	//Constructors and Destructors
 	QuadTree();
-	QuadTree(Node *parent, sf::Vector2f position, float side_length);
+	QuadTree(sf::Vector2f position, float side_length);
 	~QuadTree();
 };
 
