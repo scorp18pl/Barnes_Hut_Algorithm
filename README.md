@@ -28,7 +28,7 @@ It also implements a few tools for visualising the inner workings of the algorit
     - `C` - clear the entity trackers
     - `I` - toggle the entity tracker point limit
 
-## Configuration
+## Setup
 
 First, clone the repository using
 ```console
