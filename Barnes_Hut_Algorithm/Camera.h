@@ -2,38 +2,34 @@
 
 #include "Entity.h"
 
-enum class Direction {
-	UP, RIGHT, DOWN, LEFT
+enum class Direction
+{
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT
 };
 
-class Camera : public Entity{
-private:
-	static float FRICTION, FORCE, MAX_V;
-
-	bool follow;
-	Entity* followedEntity;
-
-	sf::View view;
+class Camera : public Entity
+{
 public:
-	//Getters and setters
-	sf::View getView();
-	Entity *getFollowed();
+    Camera();
+    Camera(sf::RenderWindow* window);
+    ~Camera() = default;
 
-	void clearMovement();
-	void setFollowed(Entity *followedEntity);
-	void disableFollow();
+    sf::View GetView();
+    Entity* GetFollowed();
 
-	//Various
-	void toggleFollow();
+    void SetFollowed(Entity* const followedEntity);
+    void DisableFollow();
+    void Zoom(float zoom);
+    void Move(Direction d);
+    void Update() override;
 
-	void zoom(float z);
-	void move(Direction d);
-	void update() override;
+private:
+    static float FRICTION, FORCE, MAX_V;
 
-	//Constructors & Destructors
-	Camera();
-	Camera(sf::RenderWindow *window);
-
-	~Camera();
+    bool m_follow;
+    Entity* m_followedEntity;
+    sf::View m_view;
 };
-

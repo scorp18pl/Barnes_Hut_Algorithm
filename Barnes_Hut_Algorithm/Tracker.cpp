@@ -1,36 +1,41 @@
 #include "Tracker.h"
 
-bool Tracker::limit = true;
+bool Tracker::m_limit = true;
 
-void Tracker::addVertex(sf::Vector2f position) {
-	if (vertices.size() > Tracker::MAX_LENGTH) {
-		this->vertices.erase(this->vertices.begin());
-	}
+void Tracker::AddVertex(sf::Vector2f position)
+{
+    if (m_limit && m_vertices.size() >= 2LU * MAX_LENGTH)
+    {
+        m_vertices.erase(m_vertices.begin(), m_vertices.end() - 2LU * MAX_LENGTH);
+    }
 
-	sf::Vertex v;
-	v.position = position;
-	v.color = sf::Color(32, 94, 37, 255);
+    sf::Vertex vertex;
+    vertex.position = position;
+    vertex.color = sf::Color(32, 94, 37, 255);
 
-	this->vertices.push_back(v);
+    if (m_vertices.size() > 1LU)
+    {
+        m_vertices.push_back(m_vertices.back());
+    }
+    m_vertices.push_back(vertex);
 }
 
-void Tracker::clear() {
-	this->vertices.clear();
+void Tracker::Clear()
+{
+    m_vertices.clear();
 }
 
-void Tracker::draw(sf::RenderWindow *window) {
-	if (this->vertices.size() == 0UL)
-		return;
+void Tracker::Draw(sf::RenderWindow* window)
+{
+    if (m_vertices.empty())
+    {
+        return;
+    }
 
-	window->draw(&this->vertices[0], this->vertices.size(), sf::Lines);
+    window->draw(m_vertices.data(), m_vertices.size(), sf::Lines);
 }
 
-void Tracker::toggleLimit() {
-	Tracker::limit = !Tracker::limit;
-}
-
-Tracker::Tracker() {
-}
-
-Tracker::~Tracker() {
+void Tracker::ToggleLimit()
+{
+    Tracker::m_limit = !Tracker::m_limit;
 }

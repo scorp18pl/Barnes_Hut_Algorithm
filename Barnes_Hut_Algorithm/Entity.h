@@ -1,67 +1,63 @@
 #pragma once
 
-#include <iostream>
-#include <cmath>
 #include <cassert>
+#include <iostream>
 #include <string>
 
-#include "SFML/Graphics.hpp"
 #include "OmniMath.h"
+#include "SFML/Graphics.hpp"
 #include "Tracker.h"
 
-class Entity {
-protected:
-	sf::Font font;
-	static bool debug_draw;
-	static bool tracker_draw;
-
-	static const float G;
-	float mass;
-	sf::Vector2f position, velocity, acceleration;
-	Tracker tracker;
-	
+class Entity
+{
 public:
-	//Getters and setters
-	float getMass();
-	sf::Vector2f getPosition();
-	void disable();
+    Entity(OMath::Vector2f position, OMath::Vector2f velocity, float mass);
 
-	//Other public methods
-	bool isDisabled();
-	float getDistance(sf::Vector2f position);
-	sf::Vector2f GForce(float mass, sf::Vector2f position);
-	std::string toString();
+    float GetMass();
+    OMath::Vector2f GetPosition();
 
-	void applyForce(sf::Vector2f force);
-	void applyForce(float f_x, float f_y);
+    bool IsDisabled() const;
+    OMath::Vector2f CalculateGForce(float mass, OMath::Vector2f position) const;
 
-	void zeroAcc();
-	virtual void update();
+    void Disable();
+    void ApplyForce(OMath::Vector2f force);
+    void ApplyForce(float f_x, float f_y);
+    void ClearAcceleration();
 
-	//drawing
-	virtual void draw(sf::RenderWindow *window);
-	static void toggleDebugDraw();
-	void clearTracker();
-	static void toggleTrackerDraw();
+    virtual void Update();
 
-	//Constructors and destructors
-	Entity(sf::Vector2f position, sf::Vector2f velocity, float mass);
+    virtual void Draw(sf::RenderWindow* window);
+    static void ToggleDebugDraw();
+    static void ToggleTrackerDraw();
+    void ClearTracker();
+
+protected:
+    sf::Font m_font;
+    static bool m_debugDraw;
+    static bool m_trackerDraw;
+
+    float m_mass;
+    OMath::Vector2f m_position, m_velocity, m_acceleration;
+    Tracker m_tracker;
 };
 
-class CircEntity : public Entity{
-private:
-	sf::CircleShape shape;
-	void updateShapePosition();
-
+class CircEntity : public Entity
+{
 public:
-	void draw(sf::RenderWindow *window) override;
+    CircEntity();
+    CircEntity(
+        OMath::Vector2f position,
+        OMath::Vector2f velocity,
+        float mass,
+        float radius = 4.0f,
+        sf::Color color = sf::Color::White);
+    ~CircEntity() = default;
 
-	CircEntity();
+    void Draw(sf::RenderWindow* window) override;
+    void Update() override;
 
-	CircEntity(sf::Vector2f position, sf::Vector2f velocity, float mass,
-				   float radius = 4.0f, sf::Color color = sf::Color::White);
+private:
+    sf::CircleShape m_shape;
 
-	~CircEntity();
-
-	void update() override;
+    void UpdateShapePosition();
 };

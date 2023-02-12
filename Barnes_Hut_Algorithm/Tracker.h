@@ -1,21 +1,22 @@
 #pragma once
 
-#include <iostream>
 #include "SFML/Graphics.hpp"
+#include <iostream>
 
-class Tracker {
-private:
-	static const size_t MAX_LENGTH = 256UL;
-	static bool limit;
-	std::vector<sf::Vertex> vertices;
+class Tracker
+{
 public:
-	void addVertex(sf::Vector2f position);
-	void clear();
-	void draw(sf::RenderWindow *window);
+    Tracker() = default;
+    ~Tracker() = default;
 
-	static void toggleLimit();
+    void AddVertex(sf::Vector2f position);
+    void Clear();
+    void Draw(sf::RenderWindow* window);
 
-	Tracker();
-	~Tracker();
+    static void ToggleLimit();
+
+private:
+    static const size_t MAX_LENGTH = 256UL;
+    static bool m_limit;
+    std::vector<sf::Vertex> m_vertices;
 };
-
