@@ -21,9 +21,9 @@ It also implements a few tools for visualising the inner workings of the algorit
     - `P` - Zoom in
     - `L` - Zoom out
 * Follow option
-    - `E` - m_follow the next entity
-    - `Q` - m_follow the previous entity
-    - `Z` - Disable the m_follow mode
+    - `E` - follow the next entity
+    - `Q` - follow the previous entity
+    - `Z` - Disable the follow mode
 * Visuals
     - `T` - toggle the quad - m_tree visual
     - `F` - toggle `the m_acceleration (red)`, `m_velocity (green)` vector visuals
