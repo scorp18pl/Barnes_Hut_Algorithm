@@ -2,53 +2,54 @@
 
 #include "SFML/Graphics.hpp"
 
-#include <algorithm>
-#include <vector>
-#include <memory>
-#include "MyRandom.h"
-#include "Map.h"
-#include "Entity.h"
-#include "Node.h"
 #include "Camera.h"
+#include "Entity.h"
+#include "Map.h"
+#include "MyRandom.h"
+#include "Node.h"
+#include <algorithm>
+#include <memory>
+#include <vector>
 
-class Simulation {
-private:
-	Map map;
-	Camera camera;
-
-	const size_t ENTITY_COUNT = 32;
-	bool draw_tree;
-	std::vector<std::shared_ptr<CircEntity>> entities;
-
-	QuadTree *quad_tree;
-
-	size_t followed_i;
-	sf::RenderWindow* window;
-
-	void generateEntities();
-
-	void toggleTree();
-	void toggleAcc();
-	void toggleTrackers();
-	void toggleTrackerLimit();
-	void toggleBarnesHut();
-
-	void followPrevious();
-	void followNext();
-	void disableFollow();
-	void clearTrackers();
-
-	void pollEvents();
-	void update();
-	void render();
-
-    std::vector<Entity *> getEntityPointers();
+class Simulation
+{
 public:
-	//Constructors and destructors
-	Simulation(size_t entity_count);
-	~Simulation();
+    Simulation(size_t entity_count);
+    ~Simulation();
 
-	void start();
-	bool isRunning();
+    bool IsRunning() const;
+
+    void Start();
+
+private:
+    Map m_map;
+    Camera m_camera;
+
+    const size_t ENTITY_COUNT = 32;
+    bool m_drawTree;
+    std::vector<std::shared_ptr<CircEntity>> m_entities;
+
+    QuadTree* m_quadTree;
+
+    size_t m_followedIndex;
+    sf::RenderWindow* m_window;
+
+    void GenerateEntities();
+
+    void PollEvents();
+    void Update();
+    void Render();
+
+    void ToggleBarnesHut();
+    void ToggleTreeDraw();
+    void ToggleKinematicsDebugDraw();
+    void ToggleTrackerDraw();
+    void ToggleTrackerLimit();
+
+    void FollowPrevious();
+    void FollowNext();
+    void DisableFollow();
+    void ClearTrackers();
+
+    std::vector<Entity*> GetEntityPointers();
 };
-

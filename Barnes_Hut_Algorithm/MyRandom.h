@@ -1,8 +1,9 @@
 #pragma once
+#include "OmniMath.h"
 #include <random>
 
-class MyRandom {
-public:
-	static float getRandomFloat(float a = 0.f, float b = 1.f);
-};
-
+namespace MyRandom
+{
+    float CreateRandomFloat(float a = 0.f, float b = 1.f);
+    OMath::Vector2f CreateRandomNormalVector2f();
+} // namespace MyRandom

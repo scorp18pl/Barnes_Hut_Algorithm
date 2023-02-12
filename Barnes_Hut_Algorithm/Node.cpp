@@ -2,380 +2,441 @@
 
 const float Node::PHI = 0.5f;
 
-void Node::setChildToNull(Quadrant quadrant) {
-	this->subquadrants[(int)quadrant] = nullptr;
+Node::Node(OMath::Vector2f position, float sideLength)
+    : m_parentQuadrant{ nullptr }
+    , m_parentSubquadrant{ NONE }
+    , m_position{ position }
+    , m_sideLength{ sideLength }
+{
+    m_shape.setPosition(position.ToSfVector());
+    m_shape.setSize(OMath::Vector2f::CreateFromFloat(sideLength).ToSfVector());
+    m_shape.setFillColor(sf::Color::Transparent);
+    m_shape.setOutlineThickness(1.0f);
+    m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
 }
 
-inline bool Node::isEmpty() {
-	return !assignedEntity;
+Node::Node(Node* parent, Quadrant parentSubquadrant)
+    : m_parentQuadrant{ parent }
+    , m_parentSubquadrant{ parentSubquadrant }
+    , m_position{ parent->GetSubquadrantPosition(parentSubquadrant) }
+    , m_sideLength{ parent->m_sideLength / 2.0f }
+{
+    m_shape.setPosition(m_position.ToSfVector());
+    m_shape.setSize(
+        OMath::Vector2f::CreateFromFloat(m_sideLength).ToSfVector());
+    m_shape.setFillColor(sf::Color::Transparent);
+    m_shape.setOutlineThickness(1.0f);
+    m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
 }
 
-bool Node::isRoot() const {
-    return !parent;
+Node::~Node()
+{
+    for (Node* subquadrant : m_subquadrants)
+    {
+        delete subquadrant;
+    }
 }
 
-inline bool Node::hasNoChildren() {
-	for (auto subquadrant : subquadrants)
-		if (subquadrant)
-			return false;
-	
-	return true;
+bool Node::IsFarEnough(Entity* entity) const
+{
+    return m_sideLength <
+        Node::PHI * (m_centerOfMass - entity->GetPosition()).GetLength();
 }
 
-bool Node::otherAreNull(Quadrant quadrant) {
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr && i != (size_t)quadrant)
-			return false;
-
-	return true;
+float Node::GetMass() const
+{
+    return m_mass;
 }
 
-bool Node::hasOnlyOneChild() {
-	int children_count = 0;
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			children_count++;
-
-	return children_count == 1;
+OMath::Vector2f Node::GetCenterOfMass() const
+{
+    return m_centerOfMass;
 }
 
-bool Node::outOfReach(sf::Vector2f position) {
-	bool out_of_reach = position.x < this->position.x;
-	out_of_reach = out_of_reach || position.y < this->position.y;
+void Node::Update()
+{
+    if (!IsEmpty())
+    {
+        const bool isInside = IsAssignedEntityInside();
+        Entity* tempEntity = m_assignedEntity;
 
-	out_of_reach = out_of_reach || position.x >= this->position.x + this->side_length;
-	out_of_reach = out_of_reach || position.y >= this->position.y + this->side_length;
-
-	return out_of_reach;
-}
-
-bool Node::isInside(Entity *entity) {
-	return !outOfReach(entity->getPosition());
-}
-
-bool Node::isEntityInside() {
-	assert(!isEmpty());
-	return isInside(assignedEntity);
-}
-
-bool Node::isSimplest() {
-	if (this->parent == nullptr)
-		return true;
-
-	return !this->parent->hasOnlyOneChild();
-}
-
-sf::Vector2f Node::getChildPosition(Quadrant q) {
-	sf::Vector2f return_v = sf::Vector2f(this->position);
-
-	switch (q) {
-		case Quadrant::NORTH_WEST:
-			return return_v;
-		case Quadrant::NORTH_EAST:
-			return_v.x += this->side_length / 2.0f;
-			return return_v;
-		case Quadrant::SOUTH_WEST:
-			return_v.y += this->side_length / 2.0f;
-			return return_v;
-		default:
-			return_v.x += this->side_length / 2.0f;
-			return_v.y += this->side_length / 2.0f;
-			return return_v;
-	}
-}
-
-Quadrant Node::selectQuadrant(sf::Vector2f position) {
-	assert(this->side_length != 0.0f && !outOfReach(position));
-
-	bool x_less, y_less;
-
-	x_less = position.x < this->position.x + this->side_length / 2.0f;
-	y_less = position.y < this->position.y + this->side_length / 2.0f;
-
-	if (x_less)
-		if (y_less)
-			return Quadrant::NORTH_WEST;
-		else
-			return Quadrant::SOUTH_WEST;
-	else
-		if (y_less)
-			return Quadrant::NORTH_EAST;
-	
-	return Quadrant::SOUTH_EAST;
-}
-
-void Node::updateMass() {
-	if (!isEmpty()) {
-		mass = assignedEntity->getMass();
-		return;
-	}
-
-	float sum = 0.0f;
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++) {
-		if (this->subquadrants[i]) {
-			this->subquadrants[i]->updateMass();
-			sum += this->subquadrants[i]->getMass();
-		}
-	}
-
-	this->mass = sum;
-}
-
-void Node::updateCenterOfMass() {
-	if (!isEmpty()) {
-		this->center_of_mass = assignedEntity->getPosition();
-		return;
-	}
-
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			this->subquadrants[i]->updateCenterOfMass();
-
-	float center = 0.0f;
-	//x coordinate
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++) {
-		if (this->subquadrants[i] != nullptr) {
-			float mass = this->subquadrants[i]->getMass();
-			center += mass * this->subquadrants[i]->getCenterOfMass().x;
-		}
-	}
-
-	center/= getMass();
-	this->center_of_mass.x = center;
-
-	//y coordinate
-	center = 0.0f;
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++) {
-		if (this->subquadrants[i] != nullptr) {
-			float mass = this->subquadrants[i]->getMass();
-			center += mass * this->subquadrants[i]->getCenterOfMass().y;
-		}
-	}
-
-	center /= getMass();
-	this->center_of_mass.y = center;
-}
-
-void Node::update() {
-	if (!isEmpty()) {
-		if (assignedEntity->isDisabled()) {
-            assignedEntity = nullptr;
-			this->parent->branchRemove(this->position, true);
-		}
-		else if (!isEntityInside() || !isSimplest()) {
-			Entity *temp_entity = assignedEntity;
-			moveUp(temp_entity, this->position, hasNoChildren());
-		}
-		return;
-	}
-
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			this->subquadrants[i]->update();
-}
-
-void Node::ensureQuadrantExists(Quadrant quadrant) {
-    if (subquadrants[quadrant]) {
+        if (IsRoot())
+        {
+            if (!isInside)
+            {
+                m_assignedEntity = nullptr;
+                tempEntity->Disable();
+            }
+        }
+        else if (!isInside || IsOnlyChild())
+        {
+            m_assignedEntity = nullptr;
+            m_parentQuadrant->MoveUp(tempEntity, m_parentSubquadrant, true);
+        }
         return;
     }
 
-    subquadrants[quadrant] = new Node(this, getChildPosition(quadrant), side_length / 2.0f);
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->Update();
+        }
+    }
 }
 
-void Node::push(Entity *entity) {
-	assert(entity != nullptr);
-
-	if (isEmpty() && hasNoChildren()) {
-        assignedEntity = entity;
-		return;
-	}
-
-	if (!this->isEmpty()) {
-		Entity *tempEntity = assignedEntity;
-
-		if (isEntityInside()) {
-            assignedEntity = nullptr;
-            const Quadrant tempQuadrant = selectQuadrant(tempEntity->getPosition());
-            ensureQuadrantExists(tempQuadrant);
-            subquadrants[tempQuadrant]->push(tempEntity);
-		}
-		else {
-            assignedEntity = entity;
-			parent->moveUp(tempEntity, this->position, false);
-			return;
-		}
-	}
-
-    const Quadrant quadrant = selectQuadrant(entity->getPosition());
-    ensureQuadrantExists(quadrant);
-	subquadrants[quadrant]->push(entity);
-}
-
-void Node::moveUp(Entity *entity, sf::Vector2f subquadrantPosition, bool removeSubquadrant) {
-	if (removeSubquadrant) {
-		Quadrant q = selectQuadrant(subquadrantPosition);
-		QuadTree::stackPush(this->subquadrants[(int)q]);
-		setChildToNull(q);
-	}
-
-	if (entity->isDisabled()) {
+void Node::UpdateMass()
+{
+    if (!IsEmpty())
+    {
+        m_mass = m_assignedEntity->GetMass();
         return;
     }
 
-	if (isInside(entity) && isSimplest()) {
-		this->push(entity);
-		return;
-	}
+    m_mass = 0.0f;
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->UpdateMass();
+            m_mass += subquadrant->GetMass();
+        }
+    }
+}
 
-    if (isRoot()) {
-        entity->disable();
+void Node::UpdateCenterOfMass()
+{
+    if (!IsEmpty())
+    {
+        m_centerOfMass = m_assignedEntity->GetPosition();
         return;
     }
 
-	parent->moveUp(entity, this->position, hasNoChildren());
+    m_centerOfMass = OMath::Vector2f::CreateZero();
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->UpdateCenterOfMass();
+            m_centerOfMass +=
+                subquadrant->GetCenterOfMass() * subquadrant->GetMass();
+        }
+    }
+
+    m_centerOfMass /= m_mass;
 }
 
-void Node::branchRemove(sf::Vector2f child_position, bool set_to_nullptr) {
-	if (set_to_nullptr) {
-		Quadrant q = selectQuadrant(child_position);
-		QuadTree::stackPush(this->subquadrants[(int)q]);
-		setChildToNull(q);
-	}
+void Node::EnsureSubquadrantExists(Quadrant subquadrant)
+{
+    if (m_subquadrants[subquadrant])
+    {
+        return;
+    }
 
-	if (isSimplest())
-		return;
-
-	this->parent->branchRemove(this->position, hasNoChildren());
+    m_subquadrants[subquadrant] = new Node(this, subquadrant);
 }
 
-void Node::setOutlineThickness(float thickness) {
-	this->shape.setOutlineThickness(thickness);
+void Node::Push(Entity* entity)
+{
+    assert(entity != nullptr);
 
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			this->subquadrants[i]->setOutlineThickness(thickness);
+    if (IsEmpty() && HasNoChildren())
+    {
+        m_assignedEntity = entity;
+        return;
+    }
+
+    if (!IsEmpty())
+    {
+        Entity* assignedEntity = m_assignedEntity;
+        if (IsAssignedEntityInside())
+        {
+            m_assignedEntity = nullptr;
+            const Quadrant tempQuadrant =
+                SelectSubquadrant(assignedEntity->GetPosition());
+            EnsureSubquadrantExists(tempQuadrant);
+            m_subquadrants[tempQuadrant]->Push(assignedEntity);
+        }
+        else
+        {
+            m_assignedEntity = entity;
+            m_parentQuadrant->MoveUp(
+                assignedEntity, m_parentSubquadrant, false);
+            return;
+        }
+    }
+
+    const Quadrant quadrant = SelectSubquadrant(entity->GetPosition());
+    EnsureSubquadrantExists(quadrant);
+    m_subquadrants[quadrant]->Push(entity);
 }
 
-void Node::draw(sf::RenderWindow *window) {
-	window->draw(this->shape);
+void Node::MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant)
+{
+    if (removeSubquadrant)
+    {
+        QuadTree::StackPush(m_subquadrants[subquadrant]);
+        m_subquadrants[subquadrant] = nullptr;
+    }
 
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			this->subquadrants[i]->draw(window);
+    if (!IsEntityInside(entity))
+    {
+        if (IsRoot())
+        {
+            entity->Disable();
+            return;
+        }
+
+        m_parentQuadrant->MoveUp(entity, m_parentSubquadrant, HasNoChildren());
+        return;
+    }
+
+    if (!IsOnlyChild() || IsRoot())
+    {
+        Push(entity);
+        return;
+    }
+
+    m_parentQuadrant->MoveUp(entity, m_parentSubquadrant, HasNoChildren());
 }
 
-void Node::calculateForce(Entity *entity, bool barnes_hut) {
-	if (!isEmpty() && entity != assignedEntity) {
-        entity->applyForce(entity->GForce(assignedEntity->getMass(), assignedEntity->getPosition()));
-		return;
-	}
+void Node::SetOutlineThickness(float thickness)
+{
+    m_shape.setOutlineThickness(thickness);
 
-	if (barnes_hut && isCloseEnough(entity)) {
-        entity->applyForce(entity->GForce(this->mass, this->center_of_mass));
-		return;
-	}
-
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			this->subquadrants[i]->calculateForce(entity, barnes_hut);
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->SetOutlineThickness(thickness);
+        }
+    }
 }
 
-bool Node::isCloseEnough(Entity *entity) {
-	return this->side_length < Node::PHI * entity->getDistance(this->center_of_mass);
+void Node::Draw(sf::RenderWindow* window)
+{
+    window->draw(m_shape);
+
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->Draw(window);
+        }
+    }
 }
 
-int Node::countEntities() {
-	int sum = 0;
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		if (this->subquadrants[i] != nullptr)
-			sum += this->subquadrants[i]->countEntities();
+void Node::ApplyGForceToEntity(Entity* entity, bool useBarnesHut)
+{
+    if (!IsEmpty() && entity != m_assignedEntity)
+    {
+        entity->ApplyForce(entity->CalculateGForce(
+            m_assignedEntity->GetMass(), m_assignedEntity->GetPosition()));
+        return;
+    }
 
-	if (!this->isEmpty())
-		sum++;
+    if (useBarnesHut && IsFarEnough(entity))
+    {
+        entity->ApplyForce(entity->CalculateGForce(m_mass, m_centerOfMass));
+        return;
+    }
 
-	return sum;
+    for (Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            subquadrant->ApplyGForceToEntity(entity, useBarnesHut);
+        }
+    }
 }
 
-float Node::getMass() {
-	return this->mass;
+inline bool Node::IsEmpty() const
+{
+    return !m_assignedEntity;
 }
 
-sf::Vector2f Node::getCenterOfMass() {
-	return this->center_of_mass;
+bool Node::IsRoot() const
+{
+    return !m_parentQuadrant;
 }
 
-Node::Node(Node *parent, sf::Vector2f position, float side_length)
-	:parent(parent), position(position), side_length(side_length), mass(0.0f),
-	assignedEntity(nullptr), center_of_mass(position) {
-	
-	this->shape.setPosition(position);
-	this->shape.setSize(sf::Vector2f(side_length, side_length));
-	this->shape.setFillColor(sf::Color::Transparent);
-	this->shape.setOutlineThickness(1.0f);
-	this->shape.setOutlineColor(sf::Color(32, 94, 37, 255));
+inline bool Node::HasNoChildren() const
+{
+    for (const Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant)
+        {
+            return false;
+        }
+    }
 
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		this->subquadrants[i] = nullptr;
+    return true;
 }
 
-Node::~Node() {
-	for (size_t i = 0; i < Node::CHILDREN_COUNT; i++)
-		delete this->subquadrants[i];
+bool Node::HasOnlyOneSubquadrant() const
+{
+    int subquadrantCount = 0;
+    for (const Node* subquadrant : m_subquadrants)
+    {
+        if (subquadrant && ++subquadrantCount > 1)
+        {
+            return false;
+        }
+    }
+
+    return subquadrantCount == 1;
 }
 
-std::stack<Node *> QuadTree::stack;
+bool Node::IsPositionOutOfBounds(OMath::Vector2f position) const
+{
+    bool outOfBounds = position.m_x < m_position.m_x;
+    outOfBounds = outOfBounds || position.m_y < m_position.m_y;
 
-QuadTree::QuadTree() 
-	:barnes_hut(true), tree(nullptr) {
+    outOfBounds = outOfBounds || position.m_x >= m_position.m_x + m_sideLength;
+    outOfBounds = outOfBounds || position.m_y >= m_position.m_y + m_sideLength;
+
+    return outOfBounds;
 }
 
-QuadTree::QuadTree(sf::Vector2f position, float side_length)
-	: barnes_hut(true), tree(new Node(nullptr, position, side_length)) {
+bool Node::IsEntityInside(Entity* entity) const
+{
+    return !IsPositionOutOfBounds(entity->GetPosition());
 }
 
-QuadTree::~QuadTree() {
-	delete tree;
+bool Node::IsAssignedEntityInside() const
+{
+    assert(!IsEmpty());
+    return IsEntityInside(m_assignedEntity);
 }
 
-void QuadTree::stackPush(Node * node) {
-	QuadTree::stack.push(node);
+bool Node::IsOnlyChild() const
+{
+    if (!m_parentQuadrant)
+    {
+        return true;
+    }
+
+    return m_parentQuadrant->HasOnlyOneSubquadrant();
 }
 
-void QuadTree::stackClear() {
-	while (!QuadTree::stack.empty()) {
-		delete QuadTree::stack.top();
-		QuadTree::stack.pop();
-	}
+OMath::Vector2f Node::GetSubquadrantPosition(Quadrant subquadrant) const
+{
+    OMath::Vector2f subquadrantPosition = m_position;
+
+    switch (subquadrant)
+    {
+    case Quadrant::NORTH_WEST:
+        return subquadrantPosition;
+    case Quadrant::NORTH_EAST:
+        subquadrantPosition.m_x += m_sideLength / 2.0f;
+        return subquadrantPosition;
+    case Quadrant::SOUTH_WEST:
+        subquadrantPosition.m_y += m_sideLength / 2.0f;
+        return subquadrantPosition;
+    default:
+        subquadrantPosition +=
+            OMath::Vector2f::CreateFromFloat(m_sideLength / 2.0f);
+        return subquadrantPosition;
+    }
 }
 
-Node *QuadTree::getTree() {
-	return tree;
+Quadrant Node::SelectSubquadrant(OMath::Vector2f position) const
+{
+    assert(m_sideLength != 0.0f);
+
+    bool x_less, y_less;
+    x_less = position.m_x < m_position.m_x + (m_sideLength / 2.0f);
+    y_less = position.m_y < m_position.m_y + (m_sideLength / 2.0f);
+
+    if (x_less)
+    {
+        if (y_less)
+        {
+            return Quadrant::NORTH_WEST;
+        }
+        else
+        {
+            return Quadrant::SOUTH_WEST;
+        }
+    }
+    else if (y_less)
+    {
+        return Quadrant::NORTH_EAST;
+    }
+
+    return Quadrant::SOUTH_EAST;
 }
 
-void QuadTree::update() {
-	this->tree->update();
-	stackClear();
+std::stack<Node*> QuadTree::stack;
 
-	this->tree->updateMass();
-	this->tree->updateCenterOfMass();
+QuadTree::QuadTree()
+    : m_barnes_hut{ true }
+    , m_tree{ nullptr }
+{
 }
 
-void QuadTree::toggleBarnesHut() {
-	this->barnes_hut = !this->barnes_hut;
+QuadTree::QuadTree(OMath::Vector2f position, float side_length)
+    : m_barnes_hut{ true }
+    , m_tree{ new Node(position, side_length) }
+{
 }
 
-void QuadTree::calculateForces(Entity *entity) {
-	this->tree->calculateForce(entity, this->barnes_hut);
+QuadTree::~QuadTree()
+{
+    delete m_tree;
 }
 
-void QuadTree::build(std::vector<Entity *> entities) {
-	for (size_t i = 0; i < entities.size(); i++)
-		this->tree->push(entities[i]);
+void QuadTree::StackPush(Node* node)
+{
+    QuadTree::stack.push(node);
 }
 
-void QuadTree::draw(sf::RenderWindow *window) {
-	if (tree != nullptr) {
-		tree->setOutlineThickness(window->getView().getSize().x / 1000.0f);
-		tree->draw(window);
-	}
+Node* QuadTree::getTree()
+{
+    return m_tree;
+}
+
+void QuadTree::update()
+{
+    m_tree->Update();
+    StackClear();
+
+    m_tree->UpdateMass();
+    m_tree->UpdateCenterOfMass();
+}
+
+void QuadTree::toggleBarnesHut()
+{
+    m_barnes_hut = !m_barnes_hut;
+}
+
+void QuadTree::ApplyGForcesToEntity(Entity* entity)
+{
+    m_tree->ApplyGForceToEntity(entity, m_barnes_hut);
+}
+
+void QuadTree::Build(std::vector<Entity*> entities)
+{
+    for (Entity* entity : entities)
+    {
+        m_tree->Push(entity);
+    }
+}
+
+void QuadTree::Draw(sf::RenderWindow* window)
+{
+    if (m_tree)
+    {
+        m_tree->SetOutlineThickness(window->getView().getSize().x / 1000.0f);
+        m_tree->Draw(window);
+    }
+}
+
+void QuadTree::StackClear()
+{
+    while (!QuadTree::stack.empty())
+    {
+        delete QuadTree::stack.top();
+        QuadTree::stack.pop();
+    }
 }

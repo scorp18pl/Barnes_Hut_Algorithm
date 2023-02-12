@@ -1,28 +1,28 @@
 #include "Map.h"
 
-bool Map::isInside(sf::Vector2f position) {
-	bool inside = position.x > this->starting_pos.x && position.x < this->ending_pos.x;
-	inside = inside && position.y > this->starting_pos.y && position.y < this->ending_pos.y;
-	
-	return inside;
+Map::Map(float side)
+    : m_startPosition{ OMath::Vector2f::CreateFromFloat(-side / 2.0f) }
+    , m_endPosition{ OMath::Vector2f::CreateFromFloat(side / 2.0f) }
+{
 }
 
-float Map::getSide() {
-	return this->ending_pos.x - this->starting_pos.x;
+Map::Map(OMath::Vector2f starting_pos, OMath::Vector2f ending_pos)
+    : m_startPosition(starting_pos)
+    , m_endPosition(ending_pos)
+{
 }
 
-sf::Vector2f Map::getStartingPosition() {
-	return this->starting_pos;
+float Map::GetSide() const
+{
+    return m_endPosition.m_x - m_startPosition.m_x;
 }
 
-sf::Vector2f Map::getEndingPosition() {
-	return this->ending_pos;
+OMath::Vector2f Map::GetStartingPosition() const
+{
+    return m_startPosition;
 }
 
-Map::Map(float side) 
-	: starting_pos(-side / 2.0f, -side / 2.0f), ending_pos(side / 2.0f, side / 2.0f) {
-}
-
-Map::Map(sf::Vector2f starting_pos, sf::Vector2f ending_pos)
-	:starting_pos(starting_pos), ending_pos(ending_pos) {
+OMath::Vector2f Map::GetEndingPosition() const
+{
+    return m_endPosition;
 }
