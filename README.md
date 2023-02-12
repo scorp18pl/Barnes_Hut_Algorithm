@@ -25,11 +25,11 @@ It also implements a few tools for visualising the inner workings of the algorit
     - `Q` - follow the previous entity
     - `Z` - Disable the follow mode
 * Visuals
-    - `T` - toggle the quad - m_tree visual
-    - `F` - toggle `the m_acceleration (red)`, `m_velocity (green)` vector visuals
+    - `T` - toggle the quad tree visual
+    - `F` - toggle `the acceleration (red)`, `velocity (green)` vector visuals
     - `G` - toggle entity trackers
     - `C` - Clear the entity trackers
-    - `I` - toggle the entity m_tracker point m_limit
+    - `I` - toggle the entity tracker point limit
 
 ## Setup
 
