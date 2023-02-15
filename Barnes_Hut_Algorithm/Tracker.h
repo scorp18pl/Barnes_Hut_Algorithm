@@ -1,6 +1,7 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
+#include <Universal/Math/Vector2.h>
 #include <iostream>
 
 class Tracker
@@ -9,7 +10,7 @@ public:
     Tracker() = default;
     ~Tracker() = default;
 
-    void AddVertex(sf::Vector2f position);
+    void AddVertex(Uni::Math::Vector2f position);
     void Clear();
     void Draw(sf::RenderWindow* window);
 

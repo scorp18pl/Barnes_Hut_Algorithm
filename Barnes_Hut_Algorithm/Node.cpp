@@ -1,15 +1,18 @@
 #include "Node.h"
 
+#include <Utils.h>
+
 const float Node::PHI = 0.5f;
 
-Node::Node(OMath::Vector2f position, float sideLength)
+Node::Node(Uni::Math::Vector2f position, float sideLength)
     : m_parentQuadrant{ nullptr }
     , m_parentSubquadrant{ NONE }
     , m_position{ position }
     , m_sideLength{ sideLength }
 {
-    m_shape.setPosition(position.ToSfVector());
-    m_shape.setSize(OMath::Vector2f::CreateFromFloat(sideLength).ToSfVector());
+    m_shape.setPosition(Utils::CreateSfVectorFromUniVector(position));
+    m_shape.setSize(Utils::CreateSfVectorFromUniVector(
+        Uni::Math::Vector2f::CreateFromFloat(sideLength)));
     m_shape.setFillColor(sf::Color::Transparent);
     m_shape.setOutlineThickness(1.0f);
     m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
@@ -21,9 +24,9 @@ Node::Node(Node* parent, Quadrant parentSubquadrant)
     , m_position{ parent->GetSubquadrantPosition(parentSubquadrant) }
     , m_sideLength{ parent->m_sideLength / 2.0f }
 {
-    m_shape.setPosition(m_position.ToSfVector());
+    m_shape.setPosition(Utils::CreateSfVectorFromUniVector(m_position));
     m_shape.setSize(
-        OMath::Vector2f::CreateFromFloat(m_sideLength).ToSfVector());
+        Utils::CreateSfVectorFromUniVector(Uni::Math::Vector2f::CreateFromFloat(m_sideLength)));
     m_shape.setFillColor(sf::Color::Transparent);
     m_shape.setOutlineThickness(1.0f);
     m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
@@ -48,7 +51,7 @@ float Node::GetMass() const
     return m_mass;
 }
 
-OMath::Vector2f Node::GetCenterOfMass() const
+Uni::Math::Vector2f Node::GetCenterOfMass() const
 {
     return m_centerOfMass;
 }
@@ -112,7 +115,7 @@ void Node::UpdateCenterOfMass()
         return;
     }
 
-    m_centerOfMass = OMath::Vector2f::CreateZero();
+    m_centerOfMass = Uni::Math::Vector2f::CreateZero();
     for (Node* subquadrant : m_subquadrants)
     {
         if (subquadrant)
@@ -287,7 +290,7 @@ bool Node::HasOnlyOneSubquadrant() const
     return subquadrantCount == 1;
 }
 
-bool Node::IsPositionOutOfBounds(OMath::Vector2f position) const
+bool Node::IsPositionOutOfBounds(Uni::Math::Vector2f position) const
 {
     bool outOfBounds = position.m_x < m_position.m_x;
     outOfBounds = outOfBounds || position.m_y < m_position.m_y;
@@ -319,9 +322,9 @@ bool Node::IsOnlyChild() const
     return m_parentQuadrant->HasOnlyOneSubquadrant();
 }
 
-OMath::Vector2f Node::GetSubquadrantPosition(Quadrant subquadrant) const
+Uni::Math::Vector2f Node::GetSubquadrantPosition(Quadrant subquadrant) const
 {
-    OMath::Vector2f subquadrantPosition = m_position;
+    Uni::Math::Vector2f subquadrantPosition = m_position;
 
     switch (subquadrant)
     {
@@ -335,12 +338,12 @@ OMath::Vector2f Node::GetSubquadrantPosition(Quadrant subquadrant) const
         return subquadrantPosition;
     default:
         subquadrantPosition +=
-            OMath::Vector2f::CreateFromFloat(m_sideLength / 2.0f);
+            Uni::Math::Vector2f::CreateFromFloat(m_sideLength / 2.0f);
         return subquadrantPosition;
     }
 }
 
-Quadrant Node::SelectSubquadrant(OMath::Vector2f position) const
+Quadrant Node::SelectSubquadrant(Uni::Math::Vector2f position) const
 {
     assert(m_sideLength != 0.0f);
 
@@ -375,7 +378,7 @@ QuadTree::QuadTree()
 {
 }
 
-QuadTree::QuadTree(OMath::Vector2f position, float side_length)
+QuadTree::QuadTree(Uni::Math::Vector2f position, float side_length)
     : m_barnes_hut{ true }
     , m_tree{ new Node(position, side_length) }
 {

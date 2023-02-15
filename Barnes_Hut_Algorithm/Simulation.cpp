@@ -1,6 +1,4 @@
-#include "Simulation.h"
-
-#include "OmniMath.h"
+#include <Simulation.h>
 
 Simulation::Simulation(size_t entity_count)
     : ENTITY_COUNT(entity_count)
@@ -10,9 +8,7 @@ Simulation::Simulation(size_t entity_count)
     m_quadTree = new QuadTree(m_map.GetStartingPosition(), m_map.GetSide());
 
     m_window = new sf::RenderWindow(
-        sf::VideoMode(3840, 2160),
-        "Simulation",
-        sf::Style::Titlebar | sf::Style::Close);
+        sf::VideoMode(1920, 1080), "Simulation", sf::Style::Fullscreen);
     m_window->setFramerateLimit(60);
     m_camera = Camera(this->m_window);
     m_camera.Zoom(1.0e-3f);
@@ -61,8 +57,8 @@ void Simulation::GenerateEntities()
     }
 
     m_entities.emplace_back(new CircEntity(
-        OMath::Vector2f::CreateZero(),
-        OMath::Vector2f::CreateZero(),
+        Uni::Math::Vector2f::CreateZero(),
+        Uni::Math::Vector2f::CreateZero(),
         bigRadius * bigRadius * bigRadius,
         bigRadius));
 }

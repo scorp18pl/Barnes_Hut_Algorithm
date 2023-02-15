@@ -1,10 +1,15 @@
-#include "Camera.h"
+#include <Camera.h>
+
+#include <Utils.h>
 
 float Camera::FRICTION = 0.1f;
 float Camera::FORCE = 1e1f;
 
 Camera::Camera()
-    : Entity(OMath::Vector2f::CreateZero(), OMath::Vector2f::CreateZero(), 1.0f)
+    : Entity(
+          Uni::Math::Vector2f::CreateZero(),
+          Uni::Math::Vector2f::CreateZero(),
+          1.0f)
     , m_follow(false)
     , m_view(sf::View())
     , m_followedEntity(nullptr)
@@ -13,8 +18,8 @@ Camera::Camera()
 
 Camera::Camera(sf::RenderWindow* window)
     : Entity(
-          OMath::Vector2f::CreateFromSfVector(window->getView().getCenter()),
-          OMath::Vector2f::CreateZero(),
+          Utils::CreateUniVectorFromSfVector(window->getView().getCenter()),
+          Uni::Math::Vector2f::CreateZero(),
           1.0f)
     , m_follow(false)
     , m_view(window->getView())
@@ -51,8 +56,7 @@ void Camera::Zoom(float zoom)
         return;
     }
 
-    OMath::Vector2f size =
-        OMath::Vector2f::CreateFromSfVector(m_view.getSize());
+    auto size = Utils::CreateUniVectorFromSfVector(m_view.getSize());
 
     if (zoom > 0)
     {
@@ -63,7 +67,7 @@ void Camera::Zoom(float zoom)
         size *= -zoom;
     }
 
-    m_view.setSize(size.ToSfVector());
+    m_view.setSize(Utils::CreateSfVectorFromUniVector(size));
 }
 
 void Camera::Move(Direction d)
@@ -102,5 +106,5 @@ void Camera::Update()
         m_acceleration = m_velocity * -Camera::FRICTION;
     }
 
-    m_view.setCenter(m_position.ToSfVector());
+    m_view.setCenter(Utils::CreateSfVectorFromUniVector(m_position));
 }

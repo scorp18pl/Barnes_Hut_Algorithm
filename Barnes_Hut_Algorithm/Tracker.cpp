@@ -1,8 +1,10 @@
-#include "Tracker.h"
+#include <Tracker.h>
+
+#include <Utils.h>
 
 bool Tracker::m_limit = true;
 
-void Tracker::AddVertex(sf::Vector2f position)
+void Tracker::AddVertex(Uni::Math::Vector2f position)
 {
     if (m_limit && m_vertices.size() >= 2LU * MAX_LENGTH)
     {
@@ -10,7 +12,7 @@ void Tracker::AddVertex(sf::Vector2f position)
     }
 
     sf::Vertex vertex;
-    vertex.position = position;
+    vertex.position = Utils::CreateSfVectorFromUniVector(position);
     vertex.color = sf::Color(32, 94, 37, 255);
 
     if (m_vertices.size() > 1LU)

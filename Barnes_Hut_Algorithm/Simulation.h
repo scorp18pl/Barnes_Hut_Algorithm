@@ -2,11 +2,11 @@
 
 #include "SFML/Graphics.hpp"
 
-#include "Camera.h"
-#include "Entity.h"
-#include "Map.h"
-#include "MyRandom.h"
-#include "Node.h"
+#include <Camera.h>
+#include <Entity.h>
+#include <Map.h>
+#include <MyRandom.h>
+#include <Node.h>
 #include <algorithm>
 #include <memory>
 #include <vector>

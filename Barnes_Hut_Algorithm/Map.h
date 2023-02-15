@@ -1,18 +1,18 @@
 #pragma once
 
-#include "OmniMath.h"
 #include <SFML/Graphics.hpp>
+#include <Universal/Math/Vector2.h>
 
 class Map
 {
 public:
     Map(float side = 1e8f);
-    Map(OMath::Vector2f starting_pos, OMath::Vector2f ending_pos);
+    Map(Uni::Math::Vector2f starting_pos, Uni::Math::Vector2f ending_pos);
 
     float GetSide() const;
-    OMath::Vector2f GetStartingPosition() const;
-    OMath::Vector2f GetEndingPosition() const;
+    Uni::Math::Vector2f GetStartingPosition() const;
+    Uni::Math::Vector2f GetEndingPosition() const;
 
 private:
-    OMath::Vector2f m_startPosition, m_endPosition;
+    Uni::Math::Vector2f m_startPosition, m_endPosition;
 };

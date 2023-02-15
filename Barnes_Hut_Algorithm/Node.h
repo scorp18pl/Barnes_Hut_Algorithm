@@ -5,7 +5,7 @@
 #include <iostream>
 #include <stack>
 
-#include "Entity.h"
+#include <Entity.h>
 
 enum Quadrant : int
 {
@@ -22,13 +22,13 @@ public:
     static constexpr size_t SUBQUADRANT_COUNT = 4;
     static const float PHI;
 
-    Node(OMath::Vector2f position, float sideLength);
+    Node(Uni::Math::Vector2f position, float sideLength);
     Node(Node* parent, Quadrant parentSubquadrant);
     ~Node();
 
     bool IsFarEnough(Entity* entity) const;
     float GetMass() const;
-    OMath::Vector2f GetCenterOfMass() const;
+    Uni::Math::Vector2f GetCenterOfMass() const;
 
     void Update();
     void UpdateMass();
@@ -49,10 +49,10 @@ public:
     void ApplyGForceToEntity(Entity* entity, bool useBarnesHut);
 
 private:
-    OMath::Vector2f m_position;
+    Uni::Math::Vector2f m_position;
     float m_sideLength;
     float m_mass{ 0.0f };
-    OMath::Vector2f m_centerOfMass{ OMath::Vector2f::CreateZero() };
+    Uni::Math::Vector2f m_centerOfMass{ Uni::Math::Vector2f::CreateZero() };
 
     Entity* m_assignedEntity{ nullptr };
 
@@ -69,7 +69,7 @@ private:
     bool HasNoChildren() const;
     //! Returns whether or not the node has only a one child.
     bool HasOnlyOneSubquadrant() const;
-    bool IsPositionOutOfBounds(OMath::Vector2f position) const;
+    bool IsPositionOutOfBounds(Uni::Math::Vector2f position) const;
     //! Returns whether or not given entity is contained
     //! within the bounds of the node.
     bool IsEntityInside(Entity* entity) const;
@@ -80,18 +80,18 @@ private:
     //! and the entity moved up the m_tree.
     bool IsOnlyChild() const;
 
-    OMath::Vector2f GetSubquadrantPosition(Quadrant subquadrant) const;
+    Uni::Math::Vector2f GetSubquadrantPosition(Quadrant subquadrant) const;
     //! Returns the quadrant in which given m_position is
     //! situated. Considered quadrants' coordinate intervals
     //! are in the form [a, b) and [b, c] (for each).
-    Quadrant SelectSubquadrant(OMath::Vector2f position) const;
+    Quadrant SelectSubquadrant(Uni::Math::Vector2f position) const;
 };
 
 class QuadTree
 {
 public:
     QuadTree();
-    QuadTree(OMath::Vector2f position, float side_length);
+    QuadTree(Uni::Math::Vector2f position, float side_length);
     ~QuadTree();
 
     static void StackPush(Node* node);

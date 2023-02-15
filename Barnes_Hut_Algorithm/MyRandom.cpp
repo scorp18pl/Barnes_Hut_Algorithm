@@ -1,5 +1,5 @@
-#include "MyRandom.h"
-#include <math.h>
+#include <MyRandom.h>
+#include <Universal/Math/Math.h>
 
 namespace MyRandom
 {
@@ -11,9 +11,9 @@ namespace MyRandom
         return distribution(gen);
     }
 
-    OMath::Vector2f CreateRandomNormalVector2f()
+    Uni::Math::Vector2f CreateRandomNormalVector2f()
     {
-        const float angle = CreateRandomFloat(0, OMath::Constants::TwoPI);
+        const float angle = CreateRandomFloat(0, Uni::Math::Constants::TwoPI);
         return {
             static_cast<float>(std::cos(angle)),
             static_cast<float>(std::sin(angle)),
