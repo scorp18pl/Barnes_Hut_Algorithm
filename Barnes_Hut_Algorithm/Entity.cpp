@@ -133,7 +133,7 @@ void CircEntity::Draw(sf::RenderWindow* window)
     }
 
     const Uni::Math::Vector2f accelerationEndpoint =
-        m_position + m_acceleration;
+        m_position + (m_acceleration * 10.0f);
 
     sf::Vertex accelerationLine[2] = {
         {

@@ -2,14 +2,6 @@
 
 #include <Entity.h>
 
-enum class Direction
-{
-    UP,
-    RIGHT,
-    DOWN,
-    LEFT
-};
-
 class Camera : public Entity
 {
 public:
@@ -23,10 +15,11 @@ public:
     void SetFollowed(Entity* const followedEntity);
     void DisableFollow();
     void Zoom(float zoom);
-    void Move(Direction d);
     void Update() override;
 
 private:
+    void HandleKeyInputs();
+
     static float FRICTION, FORCE, MAX_V;
 
     bool m_follow;

@@ -12,29 +12,25 @@ It also implements a few tools for visualising the inner workings of the algorit
 
 ## Controls
 
-* General
-    - `B` - toggle between the `Barnes Hut` and the brute force algorithm
 * Camera movement
     - `W` - Move up
     - `A` - Move left
     - `S` - Move down
     - `D` - Move right
-    - `P` - Zoom in
-    - `L` - Zoom out
+
+    You can control camera zoom using the mouse scroll button.
 * Follow option
     - `E` - follow the next entity
     - `Q` - follow the previous entity
     - `Z` - Disable the follow mode
-* Visuals
-    - `T` - toggle the quad tree visual
-    - `F` - toggle `the acceleration (red)`, `velocity (green)` vector visuals
-    - `G` - toggle entity trackers
-    - `C` - Clear the entity trackers
-    - `I` - toggle the entity tracker point limit
+
+More options are available in the GUI.
 
 ## Requirements
 
 - The [Universal](https://github.com/scorp18pl/Universal) library installed.
+- The [SFML](hhttps://github.com/SFML/SFML) library installed.
+- The [ImGui-SFML](https://github.com/SFML/imgui-sfml) library installed.
 
 ## Setup
 
@@ -54,7 +50,7 @@ After that create a build folder (inside the root repo folder) and head to it
 
 ```console
 $ mkdir build && cd build
-$ cmake .. && make
+$ cmake -DCMAKE_BUILD_TYPE=Release .. && make
 ```
 
 The bha file inside the build directory is the binary

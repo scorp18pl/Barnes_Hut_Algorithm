@@ -1,5 +1,8 @@
 #include <Simulation.h>
 
+#include <imgui-SFML.h>
+#include <imgui.h>
+
 Simulation::Simulation(size_t entity_count)
     : ENTITY_COUNT(entity_count)
     , m_drawTree(false)
@@ -12,6 +15,11 @@ Simulation::Simulation(size_t entity_count)
     m_window->setFramerateLimit(60);
     m_camera = Camera(this->m_window);
     m_camera.Zoom(1.0e-3f);
+
+    if (!ImGui::SFML::Init(*m_window))
+    {
+        return;
+    }
 }
 
 Simulation::~Simulation()
@@ -35,6 +43,8 @@ void Simulation::Start()
         Update();
         Render();
     }
+
+    ImGui::SFML::Shutdown();
 }
 
 void Simulation::GenerateEntities()
@@ -68,48 +78,18 @@ void Simulation::PollEvents()
     sf::Event event;
     while (m_window->pollEvent(event))
     {
+        ImGui::SFML::ProcessEvent(*m_window, event);
         switch (event.type)
         {
         case sf::Event::Closed:
             m_window->close();
             break;
-        case sf::Event::KeyPressed:
-            switch (event.key.code)
-            {
-            case sf::Keyboard::A:
-                this->m_camera.Move(Direction::LEFT);
-                break;
-            case sf::Keyboard::W:
-                this->m_camera.Move(Direction::UP);
-                break;
-            case sf::Keyboard::S:
-                this->m_camera.Move(Direction::DOWN);
-                break;
-            case sf::Keyboard::D:
-                this->m_camera.Move(Direction::RIGHT);
-                break;
-            case sf::Keyboard::P:
-                this->m_camera.Zoom(1.2f);
-                break;
-            case sf::Keyboard::L:
-                this->m_camera.Zoom(0.8f);
-                break;
-            default:
-                break;
-            }
+        case sf::Event::MouseWheelScrolled:
+            HandleMouseScroll(event.mouseWheelScroll.delta);
             break;
         case sf::Event::KeyReleased:
             switch (event.key.code)
             {
-            case sf::Keyboard::T:
-                ToggleTreeDraw();
-                break;
-            case sf::Keyboard::F:
-                ToggleKinematicsDebugDraw();
-                break;
-            case sf::Keyboard::B:
-                ToggleBarnesHut();
-                break;
             case sf::Keyboard::Q:
                 FollowPrevious();
                 break;
@@ -118,15 +98,6 @@ void Simulation::PollEvents()
                 break;
             case sf::Keyboard::Z:
                 DisableFollow();
-                break;
-            case sf::Keyboard::G:
-                ToggleTrackerDraw();
-                break;
-            case sf::Keyboard::C:
-                ClearTrackers();
-                break;
-            case sf::Keyboard::I:
-                ToggleTrackerLimit();
                 break;
             default:
                 break;
@@ -186,7 +157,72 @@ void Simulation::Render()
         m_quadTree->Draw(m_window);
     }
 
+    ImGui::SFML::Update(*m_window, m_deltaClock.restart());
+
+    OnImGuiUpdate();
+
+    ImGui::SFML::Render(*m_window);
     m_window->display();
+}
+
+void Simulation::OnImGuiUpdate()
+{
+    ImGui::SetNextWindowSize({ 400.0f, 800.0f });
+    ImGui::Begin("Barnes Hut Simulation");
+    ImGui::SetWindowFontScale(2.0f);
+
+    if (ImGui::CollapsingHeader("Debug options"))
+    {
+        ImGui::Indent(16.0f);
+        if (ImGui::Button("Toggle Quadtree visuals"))
+        {
+            ToggleTreeDraw();
+        }
+
+        if (ImGui::Button("Toggle Vector visuals"))
+        {
+            ToggleKinematicsDebugDraw();
+        }
+
+        if (ImGui::Button("Algorithm"))
+        {
+            ToggleBarnesHut();
+        }
+        ImGui::Unindent(16.0f);
+    }
+
+    if (ImGui::CollapsingHeader("Tracker options"))
+    {
+        ImGui::Indent(16.0f);
+        if (ImGui::Button("Toggle Visuals"))
+        {
+            ToggleTrackerDraw();
+        }
+
+        if (ImGui::Button("Toggle Limit"))
+        {
+            ToggleTrackerLimit();
+        }
+
+        if (ImGui::Button("Clear"))
+        {
+            ClearTrackers();
+        }
+        ImGui::Unindent(16.0f);
+    }
+
+    ImGui::End();
+}
+
+void Simulation::HandleMouseScroll(float delta)
+{
+    if (delta < 0.0f)
+    {
+        this->m_camera.Zoom(0.8f);
+        return;
+    }
+
+    this->m_camera.Zoom(1.2f);
 }
 
 void Simulation::ToggleBarnesHut()

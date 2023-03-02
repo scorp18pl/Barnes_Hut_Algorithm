@@ -33,12 +33,16 @@ private:
 
     size_t m_followedIndex;
     sf::RenderWindow* m_window;
+    sf::Clock m_deltaClock;
 
     void GenerateEntities();
 
     void PollEvents();
     void Update();
     void Render();
+    void OnImGuiUpdate();
+
+    void HandleMouseScroll(float delta);
 
     void ToggleBarnesHut();
     void ToggleTreeDraw();

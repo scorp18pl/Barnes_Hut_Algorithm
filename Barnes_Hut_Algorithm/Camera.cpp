@@ -3,7 +3,7 @@
 #include <Utils.h>
 
 float Camera::FRICTION = 0.1f;
-float Camera::FORCE = 1e1f;
+float Camera::FORCE = 1e-3f;
 
 Camera::Camera()
     : Entity(
@@ -70,30 +70,6 @@ void Camera::Zoom(float zoom)
     m_view.setSize(Utils::CreateSfVectorFromUniVector(size));
 }
 
-void Camera::Move(Direction d)
-{
-    float div = m_view.getSize().x / 1e3f;
-    float force = Camera::FORCE * div;
-
-    switch (d)
-    {
-    case Direction::UP:
-        ApplyForce(0.0f, -force);
-        break;
-    case Direction::RIGHT:
-        ApplyForce(force, 0.0f);
-        break;
-    case Direction::DOWN:
-        ApplyForce(0.0f, force);
-        break;
-    case Direction::LEFT:
-        ApplyForce(-force, 0.0f);
-        break;
-    default:
-        break;
-    }
-}
-
 void Camera::Update()
 {
     if (m_follow)
@@ -102,9 +78,38 @@ void Camera::Update()
     }
     else
     {
+        HandleKeyInputs();
         Entity::Update();
         m_acceleration = m_velocity * -Camera::FRICTION;
     }
 
     m_view.setCenter(Utils::CreateSfVectorFromUniVector(m_position));
+}
+
+void Camera::HandleKeyInputs()
+{
+    Uni::Math::Vector2f input = Uni::Math::Vector2f::CreateZero();
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    {
+        input += Uni::Math::Vector2f{0.0f, -1.0f};
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        input += Uni::Math::Vector2f{0.0f, 1.0f};
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    {
+        input += Uni::Math::Vector2f{-1.0f, 0.0f};
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    {
+        input += Uni::Math::Vector2f{1.0f, 0.0f};
+    }
+
+    float force = Camera::FORCE * m_view.getSize().x;
+    ApplyForce(input.GetNormalized() * force);
 }
