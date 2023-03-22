@@ -1,5 +1,8 @@
 #include <Simulation.h>
 
+#include <Universal/Math/Random.h>
+#include <Universal/Profiling/TimeRegistry.h>
+#include <Universal/Profiling/Timer.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
@@ -8,7 +11,12 @@ Simulation::Simulation(size_t entity_count)
     , m_drawTree(false)
     , m_followedIndex(0UL)
 {
-    m_quadTree = new QuadTree(m_map.GetStartingPosition(), m_map.GetSide());
+    constexpr float c_defaultMapSize = 1e8f;
+
+    m_map = { Uni::Math::Vector2f::CreateFromFloat(-c_defaultMapSize / 2.0f),
+           Uni::Math::Vector2f::CreateFromFloat(c_defaultMapSize) };
+
+    m_quadTree = new QuadTree(m_map);
 
     m_window = new sf::RenderWindow(
         sf::VideoMode(1920, 1080), "Simulation", sf::Style::Fullscreen);
@@ -49,19 +57,20 @@ void Simulation::Start()
 
 void Simulation::GenerateEntities()
 {
-    const float bigRadius = 1.0e5f;
+    static constexpr float bigRadius = 1.0e5f;
+    static constexpr float Div = 1e2f;
+    static constexpr float V = 1e3f;
 
     for (size_t i = 0; i < ENTITY_COUNT; ++i)
     {
-        const float Div = 1e2f;
-        const float V = 1e3f;
-
-        float radius = MyRandom::CreateRandomFloat(1.0f, 1.0e3f);
+        const float radius =
+            Uni::Math::Rand::CreateRandomUniformFloat(1.0f, 1.0e3f);
 
         m_entities.emplace_back(new CircEntity(
-            MyRandom::CreateRandomNormalVector2f() *
-                MyRandom::CreateRandomFloat(bigRadius, m_map.GetSide() / Div),
-            MyRandom::CreateRandomNormalVector2f() * V,
+            Uni::Math::Vector2f::CreateRandomUnitVector() *
+                Uni::Math::Rand::CreateRandomUniformFloat(
+                    bigRadius, m_map.GetDimensions().m_x / Div),
+            Uni::Math::Vector2f::CreateRandomUnitVector() * V,
             radius * radius * radius,
             radius));
     }
@@ -110,6 +119,7 @@ void Simulation::PollEvents()
 
 void Simulation::Update()
 {
+    Uni::Prof::Timer t("Update");
     PollEvents();
 
     for (auto entity : m_entities)
@@ -145,6 +155,7 @@ void Simulation::Update()
 
 void Simulation::Render()
 {
+    Uni::Prof::Timer t("Render");
     m_window->clear();
 
     for (auto entity : m_entities)
@@ -209,6 +220,13 @@ void Simulation::OnImGuiUpdate()
             ClearTrackers();
         }
         ImGui::Unindent(16.0f);
+    }
+
+    if (ImGui::Button("Quit"))
+    {
+        Uni::Prof::TimeRegistry::GetTimeRegistry().WriteToJsonFile(
+            "/home/scorp/Documents/code/repos/universal/logs/");
+        m_window->close();
     }
 
     ImGui::End();

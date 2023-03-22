@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Entity.h>
+#include <Universal/Math/BoundingBox2D.h>
 #include <array>
 #include <cassert>
 #include <iostream>
 #include <stack>
-
-#include <Entity.h>
 
 enum Quadrant : int
 {
@@ -22,7 +22,7 @@ public:
     static constexpr size_t SUBQUADRANT_COUNT = 4;
     static const float PHI;
 
-    Node(Uni::Math::Vector2f position, float sideLength);
+    Node(const Uni::Math::BoundingBox2D& boundingBox);
     Node(Node* parent, Quadrant parentSubquadrant);
     ~Node();
 
@@ -49,8 +49,7 @@ public:
     void ApplyGForceToEntity(Entity* entity, bool useBarnesHut);
 
 private:
-    Uni::Math::Vector2f m_position;
-    float m_sideLength;
+    Uni::Math::BoundingBox2D m_boundingBox;
     float m_mass{ 0.0f };
     Uni::Math::Vector2f m_centerOfMass{ Uni::Math::Vector2f::CreateZero() };
 
@@ -69,7 +68,6 @@ private:
     bool HasNoChildren() const;
     //! Returns whether or not the node has only a one child.
     bool HasOnlyOneSubquadrant() const;
-    bool IsPositionOutOfBounds(Uni::Math::Vector2f position) const;
     //! Returns whether or not given entity is contained
     //! within the bounds of the node.
     bool IsEntityInside(Entity* entity) const;
@@ -80,7 +78,7 @@ private:
     //! and the entity moved up the m_tree.
     bool IsOnlyChild() const;
 
-    Uni::Math::Vector2f GetSubquadrantPosition(Quadrant subquadrant) const;
+    Uni::Math::BoundingBox2D GetSubquadrantBoundingBox(Quadrant subquadrant) const;
     //! Returns the quadrant in which given m_position is
     //! situated. Considered quadrants' coordinate intervals
     //! are in the form [a, b) and [b, c] (for each).
@@ -91,7 +89,7 @@ class QuadTree
 {
 public:
     QuadTree();
-    QuadTree(Uni::Math::Vector2f position, float side_length);
+    QuadTree(const Uni::Math::BoundingBox2D& boundingBox);
     ~QuadTree();
 
     static void StackPush(Node* node);

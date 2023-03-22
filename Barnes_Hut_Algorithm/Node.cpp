@@ -4,15 +4,15 @@
 
 const float Node::PHI = 0.5f;
 
-Node::Node(Uni::Math::Vector2f position, float sideLength)
+Node::Node(const Uni::Math::BoundingBox2D& boundingBox)
     : m_parentQuadrant{ nullptr }
     , m_parentSubquadrant{ NONE }
-    , m_position{ position }
-    , m_sideLength{ sideLength }
+    , m_boundingBox{ boundingBox }
 {
-    m_shape.setPosition(Utils::CreateSfVectorFromUniVector(position));
-    m_shape.setSize(Utils::CreateSfVectorFromUniVector(
-        Uni::Math::Vector2f::CreateFromFloat(sideLength)));
+    m_shape.setPosition(
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMinPoint()));
+    m_shape.setSize(
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetDimensions()));
     m_shape.setFillColor(sf::Color::Transparent);
     m_shape.setOutlineThickness(1.0f);
     m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
@@ -21,12 +21,12 @@ Node::Node(Uni::Math::Vector2f position, float sideLength)
 Node::Node(Node* parent, Quadrant parentSubquadrant)
     : m_parentQuadrant{ parent }
     , m_parentSubquadrant{ parentSubquadrant }
-    , m_position{ parent->GetSubquadrantPosition(parentSubquadrant) }
-    , m_sideLength{ parent->m_sideLength / 2.0f }
+    , m_boundingBox{ parent->GetSubquadrantBoundingBox(parentSubquadrant) }
 {
-    m_shape.setPosition(Utils::CreateSfVectorFromUniVector(m_position));
+    m_shape.setPosition(
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMinPoint()));
     m_shape.setSize(
-        Utils::CreateSfVectorFromUniVector(Uni::Math::Vector2f::CreateFromFloat(m_sideLength)));
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetDimensions()));
     m_shape.setFillColor(sf::Color::Transparent);
     m_shape.setOutlineThickness(1.0f);
     m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
@@ -42,7 +42,9 @@ Node::~Node()
 
 bool Node::IsFarEnough(Entity* entity) const
 {
-    return m_sideLength <
+    return std::max(
+               m_boundingBox.GetDimensions().m_x,
+               m_boundingBox.GetDimensions().m_y) <
         Node::PHI * (m_centerOfMass - entity->GetPosition()).GetLength();
 }
 
@@ -290,20 +292,9 @@ bool Node::HasOnlyOneSubquadrant() const
     return subquadrantCount == 1;
 }
 
-bool Node::IsPositionOutOfBounds(Uni::Math::Vector2f position) const
-{
-    bool outOfBounds = position.m_x < m_position.m_x;
-    outOfBounds = outOfBounds || position.m_y < m_position.m_y;
-
-    outOfBounds = outOfBounds || position.m_x >= m_position.m_x + m_sideLength;
-    outOfBounds = outOfBounds || position.m_y >= m_position.m_y + m_sideLength;
-
-    return outOfBounds;
-}
-
 bool Node::IsEntityInside(Entity* entity) const
 {
-    return !IsPositionOutOfBounds(entity->GetPosition());
+    return m_boundingBox.IsPointWithinBounds(entity->GetPosition());
 }
 
 bool Node::IsAssignedEntityInside() const
@@ -322,34 +313,39 @@ bool Node::IsOnlyChild() const
     return m_parentQuadrant->HasOnlyOneSubquadrant();
 }
 
-Uni::Math::Vector2f Node::GetSubquadrantPosition(Quadrant subquadrant) const
+Uni::Math::BoundingBox2D Node::GetSubquadrantBoundingBox(
+    Quadrant subquadrant) const
 {
-    Uni::Math::Vector2f subquadrantPosition = m_position;
+    Uni::Math::Vector2f subquadrantMinPoint = m_boundingBox.GetMinPoint();
+    Uni::Math::Vector2f subquadrantDimensions =
+        m_boundingBox.GetDimensions() / 2.0f;
 
     switch (subquadrant)
     {
-    case Quadrant::NORTH_WEST:
-        return subquadrantPosition;
     case Quadrant::NORTH_EAST:
-        subquadrantPosition.m_x += m_sideLength / 2.0f;
-        return subquadrantPosition;
+        subquadrantMinPoint.m_x += subquadrantDimensions.m_x;
+        break;
     case Quadrant::SOUTH_WEST:
-        subquadrantPosition.m_y += m_sideLength / 2.0f;
-        return subquadrantPosition;
-    default:
-        subquadrantPosition +=
-            Uni::Math::Vector2f::CreateFromFloat(m_sideLength / 2.0f);
-        return subquadrantPosition;
+        subquadrantMinPoint.m_y += subquadrantDimensions.m_y;
+        break;
+    case Quadrant::SOUTH_EAST:
+        subquadrantMinPoint += subquadrantDimensions;
+        break;
     }
+
+    return { subquadrantMinPoint, subquadrantDimensions };
 }
 
 Quadrant Node::SelectSubquadrant(Uni::Math::Vector2f position) const
 {
-    assert(m_sideLength != 0.0f);
+    assert(m_boundingBox.GetDimensions() != Uni::Math::Vector2f::CreateZero());
+
+    const Uni::Math::Vector2f middlePoint =
+        m_boundingBox.GetMinPoint() + m_boundingBox.GetDimensions() / 2.0f;
 
     bool x_less, y_less;
-    x_less = position.m_x < m_position.m_x + (m_sideLength / 2.0f);
-    y_less = position.m_y < m_position.m_y + (m_sideLength / 2.0f);
+    x_less = position.m_x < middlePoint.m_x;
+    y_less = position.m_y < middlePoint.m_y;
 
     if (x_less)
     {
@@ -378,9 +374,9 @@ QuadTree::QuadTree()
 {
 }
 
-QuadTree::QuadTree(Uni::Math::Vector2f position, float side_length)
+QuadTree::QuadTree(const Uni::Math::BoundingBox2D& boundingBox)
     : m_barnes_hut{ true }
-    , m_tree{ new Node(position, side_length) }
+    , m_tree{ new Node(boundingBox) }
 {
 }
 

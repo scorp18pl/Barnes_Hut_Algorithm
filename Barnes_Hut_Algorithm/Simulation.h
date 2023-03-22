@@ -1,11 +1,11 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
+#include <Universal/Math/BoundingBox2D.h>
 
 #include <Camera.h>
 #include <Entity.h>
 #include <Map.h>
-#include <MyRandom.h>
 #include <Node.h>
 #include <algorithm>
 #include <memory>
@@ -22,7 +22,7 @@ public:
     void Start();
 
 private:
-    Map m_map;
+    Uni::Math::BoundingBox2D m_map;
     Camera m_camera;
 
     const size_t ENTITY_COUNT = 32;
