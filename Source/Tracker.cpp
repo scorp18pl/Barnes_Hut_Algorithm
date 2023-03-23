@@ -1,6 +1,5 @@
 #include <Tracker.h>
-
-#include <Utils.h>
+#include <Utils/Utils.h>
 
 bool Tracker::m_limit = true;
 
@@ -8,7 +7,8 @@ void Tracker::AddVertex(Uni::Math::Vector2f position)
 {
     if (m_limit && m_vertices.size() >= 2LU * MAX_LENGTH)
     {
-        m_vertices.erase(m_vertices.begin(), m_vertices.end() - 2LU * MAX_LENGTH);
+        m_vertices.erase(
+            m_vertices.begin(), m_vertices.end() - 2LU * MAX_LENGTH);
     }
 
     sf::Vertex vertex;

@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Camera.h>
+#include <Entity/CircEntity.h>
+#include <QuadTree/Node.h>
+#include <QuadTree/QuadTree.h>
 #include <SFML/Graphics.hpp>
 #include <Universal/Math/BoundingBox2D.h>
-
-#include <Camera.h>
-#include <Entity.h>
-#include <Node.h>
 #include <algorithm>
 #include <memory>
 #include <vector>

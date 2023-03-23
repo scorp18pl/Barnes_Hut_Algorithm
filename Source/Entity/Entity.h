@@ -1,12 +1,11 @@
 #pragma once
 
-#include <cassert>
-#include <iostream>
-#include <string>
-
 #include <SFML/Graphics.hpp>
 #include <Tracker.h>
 #include <Universal/Math/Vector2.h>
+#include <cassert>
+#include <iostream>
+#include <string>
 
 class Entity
 {
@@ -41,25 +40,4 @@ protected:
     float m_mass;
     Uni::Math::Vector2f m_position, m_velocity, m_acceleration;
     Tracker m_tracker;
-};
-
-class CircEntity : public Entity
-{
-public:
-    CircEntity();
-    CircEntity(
-        Uni::Math::Vector2f position,
-        Uni::Math::Vector2f velocity,
-        float mass,
-        float radius = 4.0f,
-        sf::Color color = sf::Color::White);
-    ~CircEntity() = default;
-
-    void Draw(sf::RenderWindow* window) override;
-    void Update() override;
-
-private:
-    sf::CircleShape m_shape;
-
-    void UpdateShapePosition();
 };

@@ -1,6 +1,6 @@
 #include <Camera.h>
 
-#include <Utils.h>
+#include "Utils/Utils.h"
 
 float Camera::FRICTION = 0.1f;
 float Camera::FORCE = 1e-3f;
