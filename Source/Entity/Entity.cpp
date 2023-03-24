@@ -1,6 +1,6 @@
-#include "Entity/Entity.h"
-#include "Utils/Utils.h"
-#include <Universal/Math/Math.h>
+#include <Entity/Entity.h>
+#include <Simulation.h>
+#include <Utils/Utils.h>
 
 bool Entity::m_debugDraw = false;
 bool Entity::m_trackerDraw = false;
@@ -14,14 +14,19 @@ Entity::Entity(
 {
 }
 
-float Entity::GetMass()
+float Entity::GetMass() const
 {
     return m_mass;
 }
 
-Uni::Math::Vector2f Entity::GetPosition()
+Uni::Math::Vector2f Entity::GetPosition() const
 {
     return m_position;
+}
+
+Uni::Math::Vector2f Entity::GetVelocity() const
+{
+    return m_velocity;
 }
 
 bool Entity::IsDisabled() const
@@ -43,7 +48,8 @@ Uni::Math::Vector2f Entity::CalculateGForce(
     }
 
     const float force =
-        Uni::Math::Constants::BigG * mass * m_mass / distanceSquared;
+        Simulation::GetSimulation().GetCurrentSimulationPreset().m_bigGValue *
+        mass * m_mass / distanceSquared;
 
     return normalVector * force;
 }
@@ -76,7 +82,7 @@ void Entity::Update()
     m_tracker.AddVertex(m_position);
 }
 
-void Entity::Draw(sf::RenderWindow* window)
+void Entity::Draw(sf::RenderWindow* window) const
 {
 }
 

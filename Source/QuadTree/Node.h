@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/Entity.h"
+#include <Entity/Entity.h>
 #include <Universal/Math/BoundingBox2D.h>
 #include <array>
 #include <cassert>

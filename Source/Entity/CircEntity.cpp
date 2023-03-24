@@ -1,4 +1,6 @@
 #include <Entity/CircEntity.h>
+#include <Simulation.h>
+#include <Universal/Math/Math.h>
 #include <Utils/Utils.h>
 
 CircEntity::CircEntity()
@@ -12,10 +14,14 @@ CircEntity::CircEntity()
 CircEntity::CircEntity(
     Uni::Math::Vector2f position,
     Uni::Math::Vector2f velocity,
-    float mass,
     float radius,
+    float density,
     sf::Color color)
-    : Entity(position, velocity, mass)
+    : Entity(
+          position,
+          velocity,
+          (4.0f / 3.0f) * Uni::Math::Constants::PI * radius * radius * radius *
+              density)
 {
     m_shape.setPosition(Utils::CreateSfVectorFromUniVector(Entity::m_position));
     m_shape.setRadius(radius);
@@ -23,7 +29,12 @@ CircEntity::CircEntity(
     m_font = m_font;
 }
 
-void CircEntity::Draw(sf::RenderWindow* window)
+float CircEntity::GetRadius() const
+{
+    return m_shape.getRadius();
+}
+
+void CircEntity::Draw(sf::RenderWindow* window) const
 {
     if (Entity::m_trackerDraw)
     {
@@ -38,7 +49,7 @@ void CircEntity::Draw(sf::RenderWindow* window)
     }
 
     const Uni::Math::Vector2f accelerationEndpoint =
-        m_position + (m_acceleration * 10.0f);
+        m_position + (m_acceleration);
 
     sf::Vertex accelerationLine[2] = {
         {

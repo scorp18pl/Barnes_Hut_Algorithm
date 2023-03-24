@@ -24,11 +24,6 @@ void QuadTree::StackPush(Node* node)
     QuadTree::stack.push(node);
 }
 
-Node* QuadTree::getTree()
-{
-    return m_tree;
-}
-
 void QuadTree::update()
 {
     m_tree->Update();

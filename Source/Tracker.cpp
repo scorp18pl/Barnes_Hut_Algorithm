@@ -27,7 +27,7 @@ void Tracker::Clear()
     m_vertices.clear();
 }
 
-void Tracker::Draw(sf::RenderWindow* window)
+void Tracker::Draw(sf::RenderWindow* window) const
 {
     if (m_vertices.empty())
     {

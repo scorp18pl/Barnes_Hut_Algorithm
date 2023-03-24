@@ -13,8 +13,9 @@ public:
     Entity(
         Uni::Math::Vector2f position, Uni::Math::Vector2f velocity, float mass);
 
-    float GetMass();
-    Uni::Math::Vector2f GetPosition();
+    float GetMass() const;
+    Uni::Math::Vector2f GetPosition() const;
+    Uni::Math::Vector2f GetVelocity() const;
 
     bool IsDisabled() const;
     Uni::Math::Vector2f CalculateGForce(
@@ -27,12 +28,13 @@ public:
 
     virtual void Update();
 
-    virtual void Draw(sf::RenderWindow* window);
+    virtual void Draw(sf::RenderWindow* window) const;
     static void ToggleDebugDraw();
     static void ToggleTrackerDraw();
     void ClearTracker();
 
 protected:
+
     sf::Font m_font;
     static bool m_debugDraw;
     static bool m_trackerDraw;

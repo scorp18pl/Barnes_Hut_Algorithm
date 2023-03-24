@@ -9,12 +9,14 @@ public:
     CircEntity(
         Uni::Math::Vector2f position,
         Uni::Math::Vector2f velocity,
-        float mass,
-        float radius = 4.0f,
+        float radius,
+        float density = 3.0e6f,
         sf::Color color = sf::Color::White);
     ~CircEntity() = default;
 
-    void Draw(sf::RenderWindow* window) override;
+    float GetRadius() const;
+
+    void Draw(sf::RenderWindow* window) const override;
     void Update() override;
 
 private:

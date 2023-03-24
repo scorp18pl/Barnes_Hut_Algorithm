@@ -6,12 +6,10 @@ class QuadTree
 {
 public:
     QuadTree();
-    QuadTree(const Uni::Math::BoundingBox2D& boundingBox);
+    explicit QuadTree(const Uni::Math::BoundingBox2D& boundingBox);
     ~QuadTree();
 
     static void StackPush(Node* node);
-
-    Node* getTree();
 
     void update();
     void toggleBarnesHut();

@@ -188,7 +188,7 @@ void Node::MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant)
     {
         if (IsRoot())
         {
-            entity->Disable();
+            // Let the simulation detect this and remove it.
             return;
         }
 

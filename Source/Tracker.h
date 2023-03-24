@@ -12,7 +12,7 @@ public:
 
     void AddVertex(Uni::Math::Vector2f position);
     void Clear();
-    void Draw(sf::RenderWindow* window);
+    void Draw(sf::RenderWindow* window) const;
 
     static void ToggleLimit();
 

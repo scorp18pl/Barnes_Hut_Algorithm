@@ -1,25 +1,34 @@
 #include <Simulation.h>
-
+#include <SimulationPreset/SimulationPresetSerializer.h>
 #include <Universal/Math/Random.h>
 #include <Universal/Profiling/TimeRegistry.h>
 #include <Universal/Profiling/Timer.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-Simulation::Simulation(size_t entity_count)
-    : ENTITY_COUNT(entity_count)
-    , m_drawTree(false)
-    , m_followedIndex(0UL)
+const Uni::Math::BoundingBox2D Simulation::Map{
+    Uni::Math::Vector2f::CreateFromFloat(-DefaultMapSize / 2.0f),
+    Uni::Math::Vector2f::CreateFromFloat(DefaultMapSize)
+};
+
+Simulation& Simulation::GetSimulation()
 {
-    constexpr float c_defaultMapSize = 1e8f;
+    static Simulation simulation;
+    return simulation;
+}
 
-    m_map = { Uni::Math::Vector2f::CreateFromFloat(-c_defaultMapSize / 2.0f),
-           Uni::Math::Vector2f::CreateFromFloat(c_defaultMapSize) };
-
-    m_quadTree = new QuadTree(m_map);
-
+Simulation::Simulation()
+    : m_currentSimulationPreset{ GenerateDefaultSimulationPreset() }
+    , m_drawTree{ false }
+    , m_followedIndex{ 0UL }
+{
+    m_quadTree = new QuadTree(Map);
+#ifndef NDEBUG
+    m_window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Simulation");
+#else
     m_window = new sf::RenderWindow(
         sf::VideoMode(1920, 1080), "Simulation", sf::Style::Fullscreen);
+#endif
     m_window->setFramerateLimit(60);
     m_camera = Camera(this->m_window);
     m_camera.Zoom(1.0e-3f);
@@ -41,9 +50,14 @@ bool Simulation::IsRunning() const
     return m_window->isOpen();
 }
 
+const SimulationPreset& Simulation::GetCurrentSimulationPreset() const
+{
+    return m_currentSimulationPreset;
+}
+
 void Simulation::Start()
 {
-    GenerateEntities();
+    GenerateDefaultSimulationPreset();
     m_quadTree->Build(GetEntityPointers());
 
     while (IsRunning())
@@ -55,31 +69,40 @@ void Simulation::Start()
     ImGui::SFML::Shutdown();
 }
 
-void Simulation::GenerateEntities()
+SimulationPreset Simulation::GenerateDefaultSimulationPreset()
 {
-    static constexpr float bigRadius = 1.0e5f;
-    static constexpr float Div = 1e2f;
-    static constexpr float V = 1e3f;
+    static constexpr size_t EntityCount = 3000LU;
+    static constexpr float Div = 1.0e2f;
+    static constexpr float V = 1.0e3f;
+    static constexpr float BigRadius = 1.0e5f;
 
-    for (size_t i = 0; i < ENTITY_COUNT; ++i)
+    SimulationPreset defaultSimulationPreset;
+
+    defaultSimulationPreset.m_entities.reserve(EntityCount);
+    defaultSimulationPreset.m_entities.emplace_back(
+        Uni::Math::Vector2f::CreateZero(),
+        Uni::Math::Vector2f::CreateZero(),
+        BigRadius);
+
+    for (size_t i = 1LU; i < EntityCount; ++i)
     {
-        const float radius =
+        const Uni::Math::Vector2f Position =
+            Uni::Math::Vector2f::CreateRandomUnitVector() *
+            Uni::Math::Rand::CreateRandomUniformFloat(
+                BigRadius, Map.GetDimensions().m_x / Div);
+
+        const Uni::Math::Vector2f Velocity =
+            Uni::Math::Vector2f::CreateRandomUnitVector() * V;
+
+        const float Radius =
             Uni::Math::Rand::CreateRandomUniformFloat(1.0f, 1.0e3f);
 
-        m_entities.emplace_back(new CircEntity(
-            Uni::Math::Vector2f::CreateRandomUnitVector() *
-                Uni::Math::Rand::CreateRandomUniformFloat(
-                    bigRadius, m_map.GetDimensions().m_x / Div),
-            Uni::Math::Vector2f::CreateRandomUnitVector() * V,
-            radius * radius * radius,
-            radius));
+        defaultSimulationPreset.m_entities.emplace_back(
+            Position, Velocity, Radius);
     }
 
-    m_entities.emplace_back(new CircEntity(
-        Uni::Math::Vector2f::CreateZero(),
-        Uni::Math::Vector2f::CreateZero(),
-        bigRadius * bigRadius * bigRadius,
-        bigRadius));
+    SimulationPresetSerializer::SaveSimulationPreset(defaultSimulationPreset);
+    return defaultSimulationPreset;
 }
 
 void Simulation::PollEvents()
@@ -119,48 +142,51 @@ void Simulation::PollEvents()
 
 void Simulation::Update()
 {
-    Uni::Prof::Timer t("Update");
     PollEvents();
 
-    for (auto entity : m_entities)
+    for (auto& entity : m_currentSimulationPreset.m_entities)
     {
-        entity->Update();
-    }
-
-    for (auto entity = m_entities.begin(); entity != m_entities.end(); ++entity)
-    {
-        if ((*entity)->IsDisabled())
+        if (!entity.IsDisabled())
         {
-            if (m_camera.GetFollowed() == (*entity).get())
-            {
-                m_camera.DisableFollow();
-                m_followedIndex = 0LU;
-            }
-
-            m_entities.erase(entity);
+            entity.Update();
         }
     }
+
+    m_quadTree->update();
+
+    m_currentSimulationPreset.m_entities.erase(
+        std::remove_if(
+            m_currentSimulationPreset.m_entities.begin(),
+            m_currentSimulationPreset.m_entities.end(),
+            [this](CircEntity& entity)
+            {
+                if (m_camera.GetFollowed() == &entity)
+                {
+                    m_camera.DisableFollow();
+                    m_followedIndex = 0LU;
+                }
+
+                return !Map.IsPointWithinBounds(entity.GetPosition());
+            }),
+        m_currentSimulationPreset.m_entities.end());
 
     m_camera.Update();
     m_window->setView(m_camera.GetView());
 
-    m_quadTree->update();
-
-    for (auto entity : m_entities)
+    for (auto& entity : m_currentSimulationPreset.m_entities)
     {
-        entity->ClearAcceleration();
-        m_quadTree->ApplyGForcesToEntity(entity.get());
+        entity.ClearAcceleration();
+        m_quadTree->ApplyGForcesToEntity(&entity);
     }
 }
 
 void Simulation::Render()
 {
-    Uni::Prof::Timer t("Render");
     m_window->clear();
 
-    for (auto entity : m_entities)
+    for (auto& entity : m_currentSimulationPreset.m_entities)
     {
-        entity->Draw(m_window);
+        entity.Draw(m_window);
     }
 
     if (m_drawTree)
@@ -224,8 +250,6 @@ void Simulation::OnImGuiUpdate()
 
     if (ImGui::Button("Quit"))
     {
-        Uni::Prof::TimeRegistry::GetTimeRegistry().WriteToJsonFile(
-            "/home/scorp/Documents/code/repos/universal/logs/");
         m_window->close();
     }
 
@@ -271,14 +295,16 @@ void Simulation::ToggleTrackerLimit()
 
 void Simulation::FollowPrevious()
 {
-    --m_followedIndex %= m_entities.size();
-    m_camera.SetFollowed(m_entities[m_followedIndex].get());
+    --m_followedIndex %= m_currentSimulationPreset.m_entities.size();
+    m_camera.SetFollowed(
+        &m_currentSimulationPreset.m_entities[m_followedIndex]);
 }
 
 void Simulation::FollowNext()
 {
-    ++m_followedIndex %= m_entities.size();
-    m_camera.SetFollowed(m_entities[m_followedIndex].get());
+    ++m_followedIndex %= m_currentSimulationPreset.m_entities.size();
+    m_camera.SetFollowed(
+        &m_currentSimulationPreset.m_entities[m_followedIndex]);
 }
 
 void Simulation::DisableFollow()
@@ -288,20 +314,20 @@ void Simulation::DisableFollow()
 
 void Simulation::ClearTrackers()
 {
-    for (auto& entity : m_entities)
+    for (auto& entity : m_currentSimulationPreset.m_entities)
     {
-        entity->ClearTracker();
+        entity.ClearTracker();
     }
 }
 
 std::vector<Entity*> Simulation::GetEntityPointers()
 {
     std::vector<Entity*> entityPointers;
-    entityPointers.reserve(m_entities.size());
+    entityPointers.reserve(m_currentSimulationPreset.m_entities.size());
 
-    for (const auto& entity : m_entities)
+    for (auto& entity : m_currentSimulationPreset.m_entities)
     {
-        entityPointers.push_back(entity.get());
+        entityPointers.push_back(&entity);
     }
 
     return entityPointers;

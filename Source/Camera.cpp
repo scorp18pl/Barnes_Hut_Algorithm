@@ -1,6 +1,5 @@
 #include <Camera.h>
-
-#include "Utils/Utils.h"
+#include <Utils/Utils.h>
 
 float Camera::FRICTION = 0.1f;
 float Camera::FORCE = 1e-3f;
@@ -92,22 +91,22 @@ void Camera::HandleKeyInputs()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
-        input += Uni::Math::Vector2f{0.0f, -1.0f};
+        input += Uni::Math::Vector2f{ 0.0f, -1.0f };
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        input += Uni::Math::Vector2f{0.0f, 1.0f};
+        input += Uni::Math::Vector2f{ 0.0f, 1.0f };
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        input += Uni::Math::Vector2f{-1.0f, 0.0f};
+        input += Uni::Math::Vector2f{ -1.0f, 0.0f };
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        input += Uni::Math::Vector2f{1.0f, 0.0f};
+        input += Uni::Math::Vector2f{ 1.0f, 0.0f };
     }
 
     float force = Camera::FORCE * m_view.getSize().x;

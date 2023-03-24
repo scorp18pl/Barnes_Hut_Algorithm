@@ -5,6 +5,7 @@
 #include <QuadTree/Node.h>
 #include <QuadTree/QuadTree.h>
 #include <SFML/Graphics.hpp>
+#include <SimulationPreset/SimulationPreset.h>
 #include <Universal/Math/BoundingBox2D.h>
 #include <algorithm>
 #include <memory>
@@ -13,28 +14,32 @@
 class Simulation
 {
 public:
-    Simulation(size_t entity_count);
+    static Simulation& GetSimulation();
+
     ~Simulation();
 
     bool IsRunning() const;
+    const SimulationPreset& GetCurrentSimulationPreset() const;
 
     void Start();
 
 private:
-    Uni::Math::BoundingBox2D m_map;
+    Simulation();
+
+    static constexpr float DefaultMapSize = 1e8f;
+
     Camera m_camera;
 
-    const size_t ENTITY_COUNT = 32;
-    bool m_drawTree;
-    std::vector<std::shared_ptr<CircEntity>> m_entities;
-
+    SimulationPreset m_currentSimulationPreset;
+    static const Uni::Math::BoundingBox2D Map;
     QuadTree* m_quadTree;
 
+    bool m_drawTree;
     size_t m_followedIndex;
     sf::RenderWindow* m_window;
     sf::Clock m_deltaClock;
 
-    void GenerateEntities();
+    static SimulationPreset GenerateDefaultSimulationPreset();
 
     void PollEvents();
     void Update();
@@ -45,9 +50,9 @@ private:
 
     void ToggleBarnesHut();
     void ToggleTreeDraw();
-    void ToggleKinematicsDebugDraw();
-    void ToggleTrackerDraw();
-    void ToggleTrackerLimit();
+    static void ToggleKinematicsDebugDraw();
+    static void ToggleTrackerDraw();
+    static void ToggleTrackerLimit();
 
     void FollowPrevious();
     void FollowNext();
