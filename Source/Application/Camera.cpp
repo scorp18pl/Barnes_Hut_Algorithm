@@ -1,5 +1,5 @@
-#include <Camera.h>
-#include <Utils/Utils.h>
+#include "Camera.h"
+#include "Utils/Utils.h"
 
 float Camera::FRICTION = 0.1f;
 float Camera::FORCE = 1e-3f;
@@ -15,13 +15,13 @@ Camera::Camera()
 {
 }
 
-Camera::Camera(sf::RenderWindow* window)
+Camera::Camera(sf::RenderWindow& window)
     : Entity(
-          Utils::CreateUniVectorFromSfVector(window->getView().getCenter()),
+          Utils::CreateUniVectorFromSfVector(window.getView().getCenter()),
           Uni::Math::Vector2f::CreateZero(),
           1.0f)
     , m_follow(false)
-    , m_view(window->getView())
+    , m_view(window.getView())
     , m_followedEntity(nullptr)
 {
 }

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Tracker.h"
 #include <SFML/Graphics.hpp>
-#include <Tracker.h>
 #include <Universal/Math/Vector2.h>
 #include <cassert>
 #include <iostream>
@@ -28,17 +28,15 @@ public:
 
     virtual void Update();
 
-    virtual void Draw(sf::RenderWindow* window) const;
+    virtual void Draw(sf::RenderWindow& window) const;
     static void ToggleDebugDraw();
-    static void ToggleTrackerDraw();
     void ClearTracker();
 
 protected:
 
-    sf::Font m_font;
-    static bool m_debugDraw;
-    static bool m_trackerDraw;
+    static bool ShouldDrawVectors;
 
+    sf::Font m_font;
     float m_mass;
     Uni::Math::Vector2f m_position, m_velocity, m_acceleration;
     Tracker m_tracker;

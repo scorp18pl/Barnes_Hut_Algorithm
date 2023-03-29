@@ -1,9 +1,8 @@
-#include <Entity/Entity.h>
-#include <Simulation.h>
-#include <Utils/Utils.h>
+#include "Entity.h"
+#include "Simulation/Simulation.h"
+#include "Utils/Utils.h"
 
-bool Entity::m_debugDraw = false;
-bool Entity::m_trackerDraw = false;
+bool Entity::ShouldDrawVectors = false;
 
 Entity::Entity(
     Uni::Math::Vector2f position, Uni::Math::Vector2f velocity, float mass)
@@ -42,13 +41,13 @@ Uni::Math::Vector2f Entity::CalculateGForce(
 
     const float distanceSquared = displacementVector.GetLengthSquared();
 
-    if (distanceSquared < 1e-4f)
+    if (distanceSquared < 1.0f)
     {
         return { 0.0f, 0.0f };
     }
 
     const float force =
-        Simulation::GetSimulation().GetCurrentSimulationPreset().m_bigGValue *
+        Uni::Math::Constants::BigG *
         mass * m_mass / distanceSquared;
 
     return normalVector * force;
@@ -76,27 +75,22 @@ void Entity::ClearAcceleration()
 
 void Entity::Update()
 {
-    m_position += m_velocity;
     m_velocity += m_acceleration;
+    m_position += m_velocity;
 
     m_tracker.AddVertex(m_position);
 }
 
-void Entity::Draw(sf::RenderWindow* window) const
+void Entity::Draw(sf::RenderWindow& window) const
 {
 }
 
 void Entity::ToggleDebugDraw()
 {
-    Entity::m_debugDraw = !Entity::m_debugDraw;
-}
-
-void Entity::ToggleTrackerDraw()
-{
-    Entity::m_trackerDraw = !Entity::m_trackerDraw;
+    Entity::ShouldDrawVectors = !Entity::ShouldDrawVectors;
 }
 
 void Entity::ClearTracker()
 {
-    this->m_tracker.Clear();
+    m_tracker.Clear();
 }

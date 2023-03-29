@@ -1,16 +1,12 @@
-#include <QuadTree/QuadTree.h>
+#include "QuadTree.h"
 
 std::stack<Node*> QuadTree::stack;
-
-QuadTree::QuadTree()
-    : m_barnes_hut{ true }
-    , m_tree{ nullptr }
-{
-}
+bool QuadTree::BarnesHut = true;
+bool QuadTree::ShouldDraw = false;
 
 QuadTree::QuadTree(const Uni::Math::BoundingBox2D& boundingBox)
-    : m_barnes_hut{ true }
-    , m_tree{ new Node(boundingBox) }
+    : m_tree{ new Node(boundingBox) }
+    , m_boundingBox{ boundingBox }
 {
 }
 
@@ -24,7 +20,7 @@ void QuadTree::StackPush(Node* node)
     QuadTree::stack.push(node);
 }
 
-void QuadTree::update()
+void QuadTree::Update()
 {
     m_tree->Update();
     StackClear();
@@ -33,14 +29,19 @@ void QuadTree::update()
     m_tree->UpdateCenterOfMass();
 }
 
-void QuadTree::toggleBarnesHut()
+void QuadTree::ToggleBarnesHut()
 {
-    m_barnes_hut = !m_barnes_hut;
+    BarnesHut = !BarnesHut;
+}
+
+void QuadTree::ToggleDraw()
+{
+    ShouldDraw = !ShouldDraw;
 }
 
 void QuadTree::ApplyGForcesToEntity(Entity* entity)
 {
-    m_tree->ApplyGForceToEntity(entity, m_barnes_hut);
+    m_tree->ApplyGForceToEntity(entity, BarnesHut);
 }
 
 void QuadTree::Build(std::vector<Entity*> entities)
@@ -51,13 +52,18 @@ void QuadTree::Build(std::vector<Entity*> entities)
     }
 }
 
-void QuadTree::Draw(sf::RenderWindow* window)
+void QuadTree::Draw(sf::RenderWindow& window) const
 {
-    if (m_tree)
+    if (ShouldDraw && m_tree)
     {
-        m_tree->SetOutlineThickness(window->getView().getSize().x / 1000.0f);
         m_tree->Draw(window);
     }
+}
+
+void QuadTree::Clear()
+{
+    delete m_tree;
+    m_tree = new Node{ m_boundingBox };
 }
 
 void QuadTree::StackClear()

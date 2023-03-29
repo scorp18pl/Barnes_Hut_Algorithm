@@ -1,25 +1,28 @@
 #pragma once
 
-#include <QuadTree/Node.h>
+#include "Node.h"
 
 class QuadTree
 {
 public:
-    QuadTree();
     explicit QuadTree(const Uni::Math::BoundingBox2D& boundingBox);
     ~QuadTree();
 
+    static void ToggleBarnesHut();
+    static void ToggleDraw();
     static void StackPush(Node* node);
 
-    void update();
-    void toggleBarnesHut();
+    void Update();
     void ApplyGForcesToEntity(Entity* entity);
     void Build(std::vector<Entity*> entities);
-    void Draw(sf::RenderWindow* window);
+    void Draw(sf::RenderWindow& window) const;
+    void Clear();
 
 private:
-    bool m_barnes_hut;
+    static bool BarnesHut, ShouldDraw;
     static std::stack<Node*> stack;
+
+    Uni::Math::BoundingBox2D m_boundingBox;
     Node* m_tree;
 
     static void StackClear();

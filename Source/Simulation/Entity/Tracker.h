@@ -12,12 +12,13 @@ public:
 
     void AddVertex(Uni::Math::Vector2f position);
     void Clear();
-    void Draw(sf::RenderWindow* window) const;
+    void Draw(sf::RenderWindow& window) const;
 
     static void ToggleLimit();
+    static void ToggleDraw();
 
 private:
-    static const size_t MAX_LENGTH = 256UL;
-    static bool m_limit;
+    static constexpr size_t MaxLength = 256UL;
+    static bool ShouldLimit, ShouldDraw;
     std::vector<sf::Vertex> m_vertices;
 };

@@ -11,25 +11,33 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 
 add_executable(bha
         Source/main.cpp
-        Source/QuadTree/Node.cpp
-        Source/QuadTree/Node.h
-        Source/QuadTree/QuadTree.cpp
-        Source/QuadTree/QuadTree.h
+        Source/Simulation/QuadTree/Node.cpp
+        Source/Simulation/QuadTree/Node.h
+        Source/Simulation/QuadTree/QuadTree.cpp
+        Source/Simulation/QuadTree/QuadTree.h
         Source/Utils/Utils.cpp
         Source/Utils/Utils.h
-        Source/Camera.cpp
-        Source/Camera.h
-        Source/Entity/Entity.cpp
-        Source/Entity/Entity.h
-        Source/Simulation.cpp
-        Source/Simulation.h
-        Source/Tracker.cpp
-        Source/Tracker.h
-        Source/Entity/CircEntity.cpp
-        Source/Entity/CircEntity.h
-        Source/SimulationPreset/SimulationPresetSerializer.cpp
-        Source/SimulationPreset/SimulationPresetSerializer.h
-        Source/SimulationPreset/SimulationPreset.h
+        Source/Application/Camera.cpp
+        Source/Application/Camera.h
+        Source/Simulation/Entity/Entity.cpp
+        Source/Simulation/Entity/Entity.h
+        Source/Simulation/Simulation.cpp
+        Source/Simulation/Simulation.h
+        Source/Simulation/Entity/Tracker.cpp
+        Source/Simulation/Entity/Tracker.h
+        Source/Simulation/Entity/CircEntity.cpp
+        Source/Simulation/Entity/CircEntity.h
+        Source/Simulation/Preset/SimulationPresetSerializer.cpp
+        Source/Simulation/Preset/SimulationPresetSerializer.h
+        Source/Simulation/Preset/SimulationPreset.h
+        Source/Simulation/Preset/SimulationPresetManager.cpp
+        Source/Simulation/Preset/SimulationPresetManager.h
+        Source/Simulation/Preset/SimulationPresetGenerator.cpp
+        Source/Simulation/Preset/SimulationPresetGenerator.h
+        Source/Simulation/Preset/SimulationPresetUtils.cpp
+        Source/Simulation/Preset/SimulationPresetUtils.h
+        Source/Application/Application.cpp
+        Source/Application/Application.h
         )
 
 target_link_libraries(bha PRIVATE ImGui-SFML::ImGui-SFML ${UNIVERSAL} nlohmann_json::nlohmann_json)

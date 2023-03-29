@@ -1,9 +1,9 @@
-#include <SFML/System.hpp>
-#include <Simulation.h>
-#include <filesystem>
+#include <Application/Application.h>
+#include <Simulation/Preset/SimulationPresetGenerator.h>
 
 int main()
 {
-    Simulation::GetSimulation().Start();
+    SimulationPresetGenerator::GenerateBuiltInSimulations();
+    Application::GetApplication().Start();
     return 0;
 }

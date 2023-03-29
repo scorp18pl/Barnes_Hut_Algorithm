@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Entity/Entity.h>
+#include <Simulation/Entity/Entity.h>
 
 class Camera : public Entity
 {
 public:
     Camera();
-    explicit Camera(sf::RenderWindow* window);
+    Camera(sf::RenderWindow& window);
     ~Camera() = default;
 
     sf::View GetView();

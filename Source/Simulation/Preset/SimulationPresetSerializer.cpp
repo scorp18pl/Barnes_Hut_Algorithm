@@ -1,11 +1,12 @@
-#include <SimulationPreset/SimulationPresetSerializer.h>
+#include <Simulation/Preset/SimulationPresetSerializer.h>
+#include <Simulation/Preset/SimulationPresetUtils.h>
 #include <fstream>
 #include <string>
 
-SimulationPreset SimulationPresetSerializer::LoadSimulationPreset(
-    const std::string& name)
+SimulationPreset SimulationPresetSerializer::ReadSimulationPresetFromFile(
+    const std::filesystem::path& filePath)
 {
-    std::ifstream simulationPresetFile(GetSimulationPresetFilePath(name));
+    std::ifstream simulationPresetFile(filePath);
     nlohmann::json jsonSimulationPreset =
         nlohmann::json::parse(simulationPresetFile);
     simulationPresetFile.close();
@@ -13,34 +14,16 @@ SimulationPreset SimulationPresetSerializer::LoadSimulationPreset(
     return DeserializeSimulationPreset(jsonSimulationPreset);
 }
 
-void SimulationPresetSerializer::SaveSimulationPreset(
-    const SimulationPreset& simulationPreset, const std::string& name)
+void SimulationPresetSerializer::WriteSimulationPresetToFile(
+    const std::filesystem::path& filePath, const SimulationPreset& simulationPreset)
 {
     nlohmann::json jsonSimulationPreset =
         SerializeSimulationPreset(simulationPreset);
-    std::ofstream simulationPresetFile(GetSimulationPresetFilePath(name));
+    std::ofstream simulationPresetFile(filePath);
+
     simulationPresetFile << jsonSimulationPreset;
+
     simulationPresetFile.close();
-}
-
-std::filesystem::path SimulationPresetSerializer::
-    GetSimulationPresetDirectoryPath()
-{
-    constexpr std::string_view simulationPresetsRelativePath{
-        "data/simulation_presets/"
-    };
-
-    return std::filesystem::path{ __FILE__ }
-        .parent_path()
-        .parent_path()
-        .parent_path()
-        .append(simulationPresetsRelativePath.data());
-}
-
-std::filesystem::path SimulationPresetSerializer::GetSimulationPresetFilePath(
-    const std::string& name)
-{
-    return GetSimulationPresetDirectoryPath().append(name + ".json");
 }
 
 std::string SimulationPresetSerializer::SerializeFloat(float value)
@@ -100,10 +83,8 @@ nlohmann::json SimulationPresetSerializer::SerializeSimulationPreset(
     const SimulationPreset& simulationPreset)
 {
     nlohmann::json jsonSimulationPreset;
-    jsonSimulationPreset[JsonLabels::BigG.data()] =
-        SerializeFloat(simulationPreset.m_bigGValue);
-    jsonSimulationPreset[JsonLabels::Scale.data()] =
-        SerializeFloat(simulationPreset.m_scale);
+    jsonSimulationPreset[JsonLabels::Name.data()] = simulationPreset.m_name;
+    jsonSimulationPreset[JsonLabels::IsBuiltIn.data()] = simulationPreset.m_isBuiltIn;
     for (const CircEntity& circEntity : simulationPreset.m_entities)
     {
         jsonSimulationPreset[JsonLabels::Entities.data()].push_back(
@@ -117,10 +98,8 @@ SimulationPreset SimulationPresetSerializer::DeserializeSimulationPreset(
     const nlohmann::json& jsonSimulationPreset)
 {
     SimulationPreset simulationPreset;
-    simulationPreset.m_bigGValue =
-        DeserializeFloat(jsonSimulationPreset[JsonLabels::BigG.data()]);
-    simulationPreset.m_scale =
-        DeserializeFloat(jsonSimulationPreset[JsonLabels::Scale.data()]);
+    simulationPreset.m_name = jsonSimulationPreset[JsonLabels::Name.data()];
+    simulationPreset.m_isBuiltIn = jsonSimulationPreset[JsonLabels::IsBuiltIn.data()];
 
     simulationPreset.m_entities.reserve(
         jsonSimulationPreset[JsonLabels::Entities.data()].size());

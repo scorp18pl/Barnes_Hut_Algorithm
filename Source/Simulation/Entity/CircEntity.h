@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entity/Entity.h>
+#include "Entity.h"
 
 class CircEntity : public Entity
 {
@@ -16,7 +16,7 @@ public:
 
     float GetRadius() const;
 
-    void Draw(sf::RenderWindow* window) const override;
+    void Draw(sf::RenderWindow& window) const override;
     void Update() override;
 
 private:

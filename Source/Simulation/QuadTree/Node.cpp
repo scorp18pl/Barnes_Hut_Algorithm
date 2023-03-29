@@ -1,6 +1,6 @@
-#include <QuadTree/Node.h>
-#include <QuadTree/QuadTree.h>
-#include <Utils/Utils.h>
+#include "Node.h"
+#include "QuadTree.h"
+#include "Utils/Utils.h"
 
 const float Node::PHI = 0.5f;
 
@@ -9,13 +9,7 @@ Node::Node(const Uni::Math::BoundingBox2D& boundingBox)
     , m_parentSubquadrant{ NONE }
     , m_boundingBox{ boundingBox }
 {
-    m_shape.setPosition(
-        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMinPoint()));
-    m_shape.setSize(
-        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetDimensions()));
-    m_shape.setFillColor(sf::Color::Transparent);
-    m_shape.setOutlineThickness(1.0f);
-    m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
+    InitializeLines();
 }
 
 Node::Node(Node* parent, Quadrant parentSubquadrant)
@@ -23,13 +17,7 @@ Node::Node(Node* parent, Quadrant parentSubquadrant)
     , m_parentSubquadrant{ parentSubquadrant }
     , m_boundingBox{ parent->GetSubquadrantBoundingBox(parentSubquadrant) }
 {
-    m_shape.setPosition(
-        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMinPoint()));
-    m_shape.setSize(
-        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetDimensions()));
-    m_shape.setFillColor(sf::Color::Transparent);
-    m_shape.setOutlineThickness(1.0f);
-    m_shape.setOutlineColor(sf::Color(32, 94, 37, 255));
+    InitializeLines();
 }
 
 Node::~Node()
@@ -205,22 +193,9 @@ void Node::MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant)
     m_parentQuadrant->MoveUp(entity, m_parentSubquadrant, HasNoChildren());
 }
 
-void Node::SetOutlineThickness(float thickness)
+void Node::Draw(sf::RenderWindow& window) const
 {
-    m_shape.setOutlineThickness(thickness);
-
-    for (Node* subquadrant : m_subquadrants)
-    {
-        if (subquadrant)
-        {
-            subquadrant->SetOutlineThickness(thickness);
-        }
-    }
-}
-
-void Node::Draw(sf::RenderWindow* window)
-{
-    window->draw(m_shape);
+    window.draw(m_lines.data(), m_lines.size(), sf::Lines);
 
     for (Node* subquadrant : m_subquadrants)
     {
@@ -311,6 +286,36 @@ bool Node::IsOnlyChild() const
     }
 
     return m_parentQuadrant->HasOnlyOneSubquadrant();
+}
+
+void Node::InitializeLines()
+{
+    static const sf::Color color = { 32, 94, 37, 255 };
+
+    const sf::Vector2f UpperLeftCorner =
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMinPoint());
+
+    const sf::Vector2f UpperRightCorner = Utils::CreateSfVectorFromUniVector(
+        m_boundingBox.GetMinPoint() +
+        Uni::Math::Vector2f{ m_boundingBox.GetDimensions().m_x, 0.0f });
+
+    const sf::Vector2f LowerLeftCorner = Utils::CreateSfVectorFromUniVector(
+        m_boundingBox.GetMinPoint() +
+        Uni::Math::Vector2f{ 0.0f, m_boundingBox.GetDimensions().m_y });
+
+    const sf::Vector2f LowerRightCorner =
+        Utils::CreateSfVectorFromUniVector(m_boundingBox.GetMaxPoint());
+
+    m_lines = {
+        sf::Vertex{ UpperLeftCorner, color },
+        sf::Vertex{ UpperRightCorner, color },
+        sf::Vertex{ UpperRightCorner, color },
+        sf::Vertex{ LowerRightCorner, color },
+        sf::Vertex{ LowerRightCorner, color },
+        sf::Vertex{ LowerLeftCorner, color },
+        sf::Vertex{ LowerLeftCorner, color },
+        sf::Vertex{ UpperLeftCorner, color },
+    };
 }
 
 Uni::Math::BoundingBox2D Node::GetSubquadrantBoundingBox(
