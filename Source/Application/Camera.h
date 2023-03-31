@@ -5,24 +5,21 @@
 class Camera : public Entity
 {
 public:
-    Camera();
-    Camera(sf::RenderWindow& window);
-    ~Camera() = default;
+    static Camera& Get();
 
+    void SetView(const sf::View& view);
     sf::View GetView();
-    Entity* GetFollowed();
 
-    void SetFollowed(Entity* followedEntity);
-    void DisableFollow();
     void Zoom(float zoom);
     void Update() override;
 
 private:
-    void HandleKeyInputs();
+    Camera();
+    Camera(const Camera& other) = default;
+    Camera(Camera&& other) = default;
+    ~Camera() = default;
 
-    static float FRICTION, FORCE;
+    static constexpr float Friction = 0.1f;
 
-    bool m_follow;
-    Entity* m_followedEntity;
     sf::View m_view;
 };

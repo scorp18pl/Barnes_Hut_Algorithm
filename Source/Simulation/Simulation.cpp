@@ -3,7 +3,6 @@
 #include <Utils/Utils.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <imgui_stdlib.h>
 
 Simulation::Simulation(const Uni::Math::BoundingBox2D& mapBounds)
@@ -21,25 +20,18 @@ void Simulation::Update()
 {
     for (auto& entity : m_entities)
     {
-        if (!entity.IsDisabled())
+        entity.Update();
+        if (!m_mapBounds.IsPointWithinBounds(entity.GetPosition()))
         {
-            entity.Update();
+            Uni::Math::Vector2f newPosition =
+                entity.GetPosition() - m_mapBounds.GetMinPoint();
+            newPosition = newPosition.GetMod(m_mapBounds.GetDimensions());
+            newPosition += m_mapBounds.GetMinPoint();
+            entity.SetPosition(newPosition);
         }
     }
 
     m_quadTree.Update();
-
-    m_entities.erase(
-        std::remove_if(
-            m_entities.begin(),
-            m_entities.end(),
-            [this](CircEntity& entity)
-            {
-                // TODO - Notify camera
-
-                return !m_mapBounds.IsPointWithinBounds(entity.GetPosition());
-            }),
-        m_entities.end());
 
     for (auto& entity : m_entities)
     {
@@ -117,9 +109,9 @@ void Simulation::ClearTrackers()
     }
 }
 
-std::vector<Entity*> Simulation::GetEntityPointers()
+std::vector<CircEntity*> Simulation::GetEntityPointers()
 {
-    std::vector<Entity*> entityPointers;
+    std::vector<CircEntity*> entityPointers;
     entityPointers.reserve(m_entities.size());
 
     for (auto& entity : m_entities)

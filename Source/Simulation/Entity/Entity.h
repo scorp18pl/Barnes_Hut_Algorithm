@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Tracker.h"
 #include <SFML/Graphics.hpp>
+#include <Simulation/Entity/Tracker.h>
 #include <Universal/Math/Vector2.h>
 #include <cassert>
 #include <iostream>
@@ -13,15 +13,14 @@ public:
     Entity(
         Uni::Math::Vector2f position, Uni::Math::Vector2f velocity, float mass);
 
+    bool IsDisabled() const;
+
     float GetMass() const;
     Uni::Math::Vector2f GetPosition() const;
     Uni::Math::Vector2f GetVelocity() const;
 
-    bool IsDisabled() const;
-    Uni::Math::Vector2f CalculateGForce(
-        float mass, Uni::Math::Vector2f position) const;
+    void SetPosition(const Uni::Math::Vector2f& position);
 
-    void Disable();
     void ApplyForce(Uni::Math::Vector2f force);
     void ApplyForce(float f_x, float f_y);
     void ClearAcceleration();
@@ -30,10 +29,10 @@ public:
 
     virtual void Draw(sf::RenderWindow& window) const;
     static void ToggleDebugDraw();
+    static void SetDebugDraw(bool value = true);
     void ClearTracker();
 
 protected:
-
     static bool ShouldDrawVectors;
 
     sf::Font m_font;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Simulation/Entity/Entity.h"
+#include <Simulation/Entity/CircEntity.h>
 #include <Universal/Math/BoundingBox2D.h>
 #include <array>
 #include <cassert>
@@ -26,58 +26,55 @@ public:
     Node(Node* parent, Quadrant parentSubquadrant);
     ~Node();
 
-    bool IsFarEnough(Entity* entity) const;
-    [[nodiscard]] float GetMass() const;
-    [[nodiscard]] Uni::Math::Vector2f GetCenterOfMass() const;
-
     void Update();
     void UpdateMass();
     void UpdateCenterOfMass();
-    void EnsureSubquadrantExists(Quadrant subquadrant);
-    void Push(Entity* entity);
+    void Push(CircEntity* entity);
 
     //! Recursively moves the entity up the quadtree until it
     //! it is contained within the node .
-    //! @param removeSubquadrant Should the subquadrant be removed?
-    void MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant);
+    //! @param removeChild Should the child node be removed?
+    void MoveUp(CircEntity* entity, Quadrant subquadrant, bool removeChild);
 
     void Draw(sf::RenderWindow& window) const;
 
     //! Recursively calculates forces for all
     //! bodies.
-    void ApplyGForceToEntity(Entity* entity, bool useBarnesHut);
+    void ApplyGForceToEntity(CircEntity* entity, bool useBarnesHut);
 
 private:
     Uni::Math::BoundingBox2D m_boundingBox;
     float m_mass{ 0.0f };
     Uni::Math::Vector2f m_centerOfMass{ Uni::Math::Vector2f::CreateZero() };
 
-    Entity* m_assignedEntity{ nullptr };
+    CircEntity* m_assignedEntity{ nullptr };
 
-    Node* m_parentQuadrant;
-    Quadrant m_parentSubquadrant;
-    std::array<Node*, SUBQUADRANT_COUNT> m_subquadrants{ { nullptr } };
+    Node* m_parent;
+    Quadrant m_subquadrant;
+    std::array<Node*, SUBQUADRANT_COUNT> m_children{ { nullptr } };
 
     std::array<sf::Vertex, 8> m_lines;
 
     //! The node is empty when it has no assigned entity.
     [[nodiscard]] bool IsEmpty() const;
     [[nodiscard]] bool IsRoot() const;
-    //! Returns whether or not a node has m_subquadrants.
+    //! Returns whether or not a node has children.
     [[nodiscard]] bool HasNoChildren() const;
     //! Returns whether or not the node has only a one child.
     [[nodiscard]] bool HasOnlyOneSubquadrant() const;
     //! Returns whether or not given entity is contained
     //! within the bounds of the node.
-    bool IsEntityInside(Entity* entity) const;
+    bool IsEntityInside(CircEntity* entity) const;
     //! Returns whether or not entity assigned to the node
     //! is contained within the bounds of the node.
     [[nodiscard]] bool IsAssignedEntityInside() const;
     //! Returns whether or not a leaf node should be deleted
-    //! and the entity moved up the m_tree.
+    //! and the entity moved up the tree.
     [[nodiscard]] bool IsOnlyChild() const;
 
     void InitializeLines();
+    void EnsureSubquadrantExists(Quadrant subquadrant);
+    bool IsFarEnough(CircEntity* entity) const;
 
     [[nodiscard]] Uni::Math::BoundingBox2D GetSubquadrantBoundingBox(Quadrant subquadrant) const;
     //! Returns the quadrant in which given m_position is

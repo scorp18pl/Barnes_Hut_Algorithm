@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_library(UNIVERSAL universal)
 find_package(ImGui-SFML REQUIRED)
-message("${UNIVERSAL}")
-
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
 add_executable(bha
@@ -38,7 +36,8 @@ add_executable(bha
         Source/Simulation/Preset/SimulationPresetUtils.h
         Source/Application/Application.cpp
         Source/Application/Application.h
-        )
+        Source/Simulation/Preset/SimulationPresetEditor.cpp
+        Source/Simulation/Preset/SimulationPresetEditor.h)
 
 target_link_libraries(bha PRIVATE ImGui-SFML::ImGui-SFML ${UNIVERSAL} nlohmann_json::nlohmann_json)
 

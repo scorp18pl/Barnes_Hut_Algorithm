@@ -8,7 +8,8 @@ SimulationPresetManager& SimulationPresetManager::Get()
     return simulationPresetManager;
 }
 
-const std::vector<std::string>& SimulationPresetManager::GetPresetNameList() const
+const std::vector<std::string>& SimulationPresetManager::GetPresetNameList()
+    const
 {
     return m_registeredPresetNames;
 }
@@ -18,8 +19,7 @@ const SimulationPreset& SimulationPresetManager::GetDefaultPreset() const
     return GetPreset(SimulationPreset::DefaultName.data());
 }
 
-bool SimulationPresetManager::IsNameTaken(
-    const std::string& name) const
+bool SimulationPresetManager::IsNameTaken(const std::string& name) const
 {
     return m_registeredPresets.contains(name);
 }
@@ -30,8 +30,7 @@ const SimulationPreset& SimulationPresetManager::GetPreset(
     return m_registeredPresets.at(name);
 }
 
-void SimulationPresetManager::Update(
-    const SimulationPreset& simulationPreset)
+void SimulationPresetManager::Update(const SimulationPreset& simulationPreset)
 {
     const auto insertionResult = m_registeredPresets.insert({
         simulationPreset.m_name,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include <Simulation/QuadTree/Node.h>
 
 class QuadTree
 {
@@ -13,8 +13,8 @@ public:
     static void StackPush(Node* node);
 
     void Update();
-    void ApplyGForcesToEntity(Entity* entity);
-    void Build(std::vector<Entity*> entities);
+    void ApplyGForcesToEntity(CircEntity* entity);
+    void Build(const std::vector<CircEntity*>& entities);
     void Draw(sf::RenderWindow& window) const;
     void Clear();
 

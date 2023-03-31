@@ -15,7 +15,8 @@ SimulationPreset SimulationPresetSerializer::ReadSimulationPresetFromFile(
 }
 
 void SimulationPresetSerializer::WriteSimulationPresetToFile(
-    const std::filesystem::path& filePath, const SimulationPreset& simulationPreset)
+    const std::filesystem::path& filePath,
+    const SimulationPreset& simulationPreset)
 {
     nlohmann::json jsonSimulationPreset =
         SerializeSimulationPreset(simulationPreset);
@@ -84,7 +85,8 @@ nlohmann::json SimulationPresetSerializer::SerializeSimulationPreset(
 {
     nlohmann::json jsonSimulationPreset;
     jsonSimulationPreset[JsonLabels::Name.data()] = simulationPreset.m_name;
-    jsonSimulationPreset[JsonLabels::IsBuiltIn.data()] = simulationPreset.m_isBuiltIn;
+    jsonSimulationPreset[JsonLabels::IsBuiltIn.data()] =
+        simulationPreset.m_isBuiltIn;
     for (const CircEntity& circEntity : simulationPreset.m_entities)
     {
         jsonSimulationPreset[JsonLabels::Entities.data()].push_back(
@@ -99,7 +101,8 @@ SimulationPreset SimulationPresetSerializer::DeserializeSimulationPreset(
 {
     SimulationPreset simulationPreset;
     simulationPreset.m_name = jsonSimulationPreset[JsonLabels::Name.data()];
-    simulationPreset.m_isBuiltIn = jsonSimulationPreset[JsonLabels::IsBuiltIn.data()];
+    simulationPreset.m_isBuiltIn =
+        jsonSimulationPreset[JsonLabels::IsBuiltIn.data()];
 
     simulationPreset.m_entities.reserve(
         jsonSimulationPreset[JsonLabels::Entities.data()].size());

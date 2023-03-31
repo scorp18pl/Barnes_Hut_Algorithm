@@ -3,7 +3,6 @@
 
 int main()
 {
-    SimulationPresetGenerator::GenerateBuiltInSimulations();
     Application::GetApplication().Start();
     return 0;
 }

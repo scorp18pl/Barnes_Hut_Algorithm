@@ -1,20 +1,20 @@
-#include "Node.h"
-#include "QuadTree.h"
-#include "Utils/Utils.h"
+#include <Simulation/QuadTree/Node.h>
+#include <Simulation/QuadTree/QuadTree.h>
+#include <Utils/Utils.h>
 
 const float Node::PHI = 0.5f;
 
 Node::Node(const Uni::Math::BoundingBox2D& boundingBox)
-    : m_parentQuadrant{ nullptr }
-    , m_parentSubquadrant{ NONE }
+    : m_parent{ nullptr }
+    , m_subquadrant{ NONE }
     , m_boundingBox{ boundingBox }
 {
     InitializeLines();
 }
 
 Node::Node(Node* parent, Quadrant parentSubquadrant)
-    : m_parentQuadrant{ parent }
-    , m_parentSubquadrant{ parentSubquadrant }
+    : m_parent{ parent }
+    , m_subquadrant{ parentSubquadrant }
     , m_boundingBox{ parent->GetSubquadrantBoundingBox(parentSubquadrant) }
 {
     InitializeLines();
@@ -22,58 +22,35 @@ Node::Node(Node* parent, Quadrant parentSubquadrant)
 
 Node::~Node()
 {
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        delete subquadrant;
+        delete child;
     }
-}
-
-bool Node::IsFarEnough(Entity* entity) const
-{
-    return std::max(
-               m_boundingBox.GetDimensions().m_x,
-               m_boundingBox.GetDimensions().m_y) <
-        Node::PHI * (m_centerOfMass - entity->GetPosition()).GetLength();
-}
-
-float Node::GetMass() const
-{
-    return m_mass;
-}
-
-Uni::Math::Vector2f Node::GetCenterOfMass() const
-{
-    return m_centerOfMass;
 }
 
 void Node::Update()
 {
     if (!IsEmpty())
     {
-        const bool isInside = IsAssignedEntityInside();
-        Entity* tempEntity = m_assignedEntity;
+        const bool IsInside = IsAssignedEntityInside();
+        CircEntity* tempEntity = m_assignedEntity;
 
-        if (IsRoot())
-        {
-            if (!isInside)
-            {
-                m_assignedEntity = nullptr;
-                tempEntity->Disable();
-            }
-        }
-        else if (!isInside || IsOnlyChild())
+        if (!IsInside || IsOnlyChild())
         {
             m_assignedEntity = nullptr;
-            m_parentQuadrant->MoveUp(tempEntity, m_parentSubquadrant, true);
+            if (!IsRoot())
+            {
+                m_parent->MoveUp(tempEntity, m_subquadrant, true);
+            }
         }
         return;
     }
 
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        if (subquadrant)
+        if (child)
         {
-            subquadrant->Update();
+            child->Update();
         }
     }
 }
@@ -87,12 +64,12 @@ void Node::UpdateMass()
     }
 
     m_mass = 0.0f;
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        if (subquadrant)
+        if (child)
         {
-            subquadrant->UpdateMass();
-            m_mass += subquadrant->GetMass();
+            child->UpdateMass();
+            m_mass += child->m_mass;
         }
     }
 }
@@ -106,30 +83,19 @@ void Node::UpdateCenterOfMass()
     }
 
     m_centerOfMass = Uni::Math::Vector2f::CreateZero();
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        if (subquadrant)
+        if (child)
         {
-            subquadrant->UpdateCenterOfMass();
-            m_centerOfMass +=
-                subquadrant->GetCenterOfMass() * subquadrant->GetMass();
+            child->UpdateCenterOfMass();
+            m_centerOfMass += child->m_centerOfMass * child->m_mass;
         }
     }
 
     m_centerOfMass /= m_mass;
 }
 
-void Node::EnsureSubquadrantExists(Quadrant subquadrant)
-{
-    if (m_subquadrants[subquadrant])
-    {
-        return;
-    }
-
-    m_subquadrants[subquadrant] = new Node(this, subquadrant);
-}
-
-void Node::Push(Entity* entity)
+void Node::Push(CircEntity* entity)
 {
     assert(entity != nullptr);
 
@@ -141,35 +107,34 @@ void Node::Push(Entity* entity)
 
     if (!IsEmpty())
     {
-        Entity* assignedEntity = m_assignedEntity;
+        CircEntity* assignedEntity = m_assignedEntity;
         if (IsAssignedEntityInside())
         {
             m_assignedEntity = nullptr;
             const Quadrant tempQuadrant =
                 SelectSubquadrant(assignedEntity->GetPosition());
             EnsureSubquadrantExists(tempQuadrant);
-            m_subquadrants[tempQuadrant]->Push(assignedEntity);
+            m_children[tempQuadrant]->Push(assignedEntity);
         }
         else
         {
             m_assignedEntity = entity;
-            m_parentQuadrant->MoveUp(
-                assignedEntity, m_parentSubquadrant, false);
+            m_parent->MoveUp(assignedEntity, m_subquadrant, false);
             return;
         }
     }
 
     const Quadrant quadrant = SelectSubquadrant(entity->GetPosition());
     EnsureSubquadrantExists(quadrant);
-    m_subquadrants[quadrant]->Push(entity);
+    m_children[quadrant]->Push(entity);
 }
 
-void Node::MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant)
+void Node::MoveUp(CircEntity* entity, Quadrant subquadrant, bool removeChild)
 {
-    if (removeSubquadrant)
+    if (removeChild)
     {
-        QuadTree::StackPush(m_subquadrants[subquadrant]);
-        m_subquadrants[subquadrant] = nullptr;
+        QuadTree::StackPush(m_children[subquadrant]);
+        m_children[subquadrant] = nullptr;
     }
 
     if (!IsEntityInside(entity))
@@ -180,38 +145,37 @@ void Node::MoveUp(Entity* entity, Quadrant subquadrant, bool removeSubquadrant)
             return;
         }
 
-        m_parentQuadrant->MoveUp(entity, m_parentSubquadrant, HasNoChildren());
+        m_parent->MoveUp(entity, m_subquadrant, HasNoChildren());
         return;
     }
 
-    if (!IsOnlyChild() || IsRoot())
+    if (!IsOnlyChild() || IsRoot() || !HasNoChildren())
     {
         Push(entity);
         return;
     }
 
-    m_parentQuadrant->MoveUp(entity, m_parentSubquadrant, HasNoChildren());
+    m_parent->MoveUp(entity, m_subquadrant, HasNoChildren());
 }
 
 void Node::Draw(sf::RenderWindow& window) const
 {
     window.draw(m_lines.data(), m_lines.size(), sf::Lines);
 
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        if (subquadrant)
+        if (child)
         {
-            subquadrant->Draw(window);
+            child->Draw(window);
         }
     }
 }
 
-void Node::ApplyGForceToEntity(Entity* entity, bool useBarnesHut)
+void Node::ApplyGForceToEntity(CircEntity* entity, bool useBarnesHut)
 {
     if (!IsEmpty() && entity != m_assignedEntity)
     {
-        entity->ApplyForce(entity->CalculateGForce(
-            m_assignedEntity->GetMass(), m_assignedEntity->GetPosition()));
+        entity->ApplyForce(entity->CalculateGForce(m_assignedEntity));
         return;
     }
 
@@ -221,11 +185,11 @@ void Node::ApplyGForceToEntity(Entity* entity, bool useBarnesHut)
         return;
     }
 
-    for (Node* subquadrant : m_subquadrants)
+    for (Node* child : m_children)
     {
-        if (subquadrant)
+        if (child)
         {
-            subquadrant->ApplyGForceToEntity(entity, useBarnesHut);
+            child->ApplyGForceToEntity(entity, useBarnesHut);
         }
     }
 }
@@ -237,28 +201,26 @@ inline bool Node::IsEmpty() const
 
 bool Node::IsRoot() const
 {
-    return !m_parentQuadrant;
+    return !m_parent;
 }
 
 inline bool Node::HasNoChildren() const
 {
-    for (const Node* subquadrant : m_subquadrants)
-    {
-        if (subquadrant)
+    return std::ranges::none_of(
+        m_children.begin(),
+        m_children.end(),
+        [](Node* node)
         {
-            return false;
-        }
-    }
-
-    return true;
+            return node;
+        });
 }
 
 bool Node::HasOnlyOneSubquadrant() const
 {
     int subquadrantCount = 0;
-    for (const Node* subquadrant : m_subquadrants)
+    for (const Node* child : m_children)
     {
-        if (subquadrant && ++subquadrantCount > 1)
+        if (child && ++subquadrantCount > 1)
         {
             return false;
         }
@@ -267,7 +229,7 @@ bool Node::HasOnlyOneSubquadrant() const
     return subquadrantCount == 1;
 }
 
-bool Node::IsEntityInside(Entity* entity) const
+bool Node::IsEntityInside(CircEntity* entity) const
 {
     return m_boundingBox.IsPointWithinBounds(entity->GetPosition());
 }
@@ -280,12 +242,12 @@ bool Node::IsAssignedEntityInside() const
 
 bool Node::IsOnlyChild() const
 {
-    if (!m_parentQuadrant)
+    if (!m_parent)
     {
         return true;
     }
 
-    return m_parentQuadrant->HasOnlyOneSubquadrant();
+    return m_parent->HasOnlyOneSubquadrant();
 }
 
 void Node::InitializeLines()
@@ -316,6 +278,24 @@ void Node::InitializeLines()
         sf::Vertex{ LowerLeftCorner, color },
         sf::Vertex{ UpperLeftCorner, color },
     };
+}
+
+void Node::EnsureSubquadrantExists(Quadrant subquadrant)
+{
+    if (m_children[subquadrant])
+    {
+        return;
+    }
+
+    m_children[subquadrant] = new Node(this, subquadrant);
+}
+
+bool Node::IsFarEnough(CircEntity* entity) const
+{
+    return std::max(
+               m_boundingBox.GetDimensions().m_x,
+               m_boundingBox.GetDimensions().m_y) <
+        Node::PHI * (m_centerOfMass - entity->GetPosition()).GetLength();
 }
 
 Uni::Math::BoundingBox2D Node::GetSubquadrantBoundingBox(

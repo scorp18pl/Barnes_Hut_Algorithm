@@ -22,8 +22,6 @@ public:
     void OnImGuiUpdate();
 
 private:
-    bool m_shouldDrawTree;
-
     std::string m_currentPresetName;
 
     Uni::Math::BoundingBox2D m_mapBounds;
@@ -32,5 +30,5 @@ private:
 
     void ClearTrackers();
 
-    std::vector<Entity*> GetEntityPointers();
+    std::vector<CircEntity*> GetEntityPointers();
 };

@@ -1,4 +1,4 @@
-#include "QuadTree.h"
+#include <Simulation/QuadTree/QuadTree.h>
 
 std::stack<Node*> QuadTree::stack;
 bool QuadTree::BarnesHut = true;
@@ -12,6 +12,7 @@ QuadTree::QuadTree(const Uni::Math::BoundingBox2D& boundingBox)
 
 QuadTree::~QuadTree()
 {
+    StackClear();
     delete m_tree;
 }
 
@@ -39,14 +40,14 @@ void QuadTree::ToggleDraw()
     ShouldDraw = !ShouldDraw;
 }
 
-void QuadTree::ApplyGForcesToEntity(Entity* entity)
+void QuadTree::ApplyGForcesToEntity(CircEntity* entity)
 {
     m_tree->ApplyGForceToEntity(entity, BarnesHut);
 }
 
-void QuadTree::Build(std::vector<Entity*> entities)
+void QuadTree::Build(const std::vector<CircEntity*>& entities)
 {
-    for (Entity* entity : entities)
+    for (CircEntity* entity : entities)
     {
         m_tree->Push(entity);
     }
