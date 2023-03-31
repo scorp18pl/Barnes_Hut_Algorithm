@@ -2,7 +2,7 @@
 
 This project simulates gravity force interactions between many entities. To this end it
 implements the [Barnes Hut Algorithm](https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation) which uses quadtrees
-to achieve `O(n log n)` time complexity. 
+to achieve `O(n log n)` time complexity.
 This project also allows the user to compare it with the brute force algorithm
 that has a time complexity of `O(n^2)`. The goal of this project was practicing the C++ development
 and data structures (as well as playing with some basic physics).
@@ -18,13 +18,25 @@ It also implements a few tools for visualising the inner workings of the algorit
     - `S` - Move down
     - `D` - Move right
 
-    You can control camera zoom using the mouse scroll button.
-* Follow option
-    - `E` - follow the next entity
-    - `Q` - follow the previous entity
-    - `Z` - Disable the follow mode
+  You can control camera zoom using the mouse scroll button.
 
 More options are available in the GUI.
+
+## Preset System
+
+The Preset System offers a way to customize your simulation. Each preset
+describes the simulated entities. You can access the Simulation Preset Editor
+through GUI. In the Simulation Preset Editor you can add new entities to the preset,
+customize currently existing ones and save the preset for future use.
+
+Currently, there are four built-in simulation presets:
+
+- Default - One big entity in the middle with thousands smaller ones around it.
+- TwoBody, ThreeBody, FiveBody - A multiple body systems of entities orbiting around the system's center of mass.
+
+***Note:*** *Due to the fact that the BarnesHut Algorithm is just an approximation of actual physics, floating point
+arithmetic limitations and the chaotic nature of n-body systems the provided systems may over time break their
+symmetry.*
 
 ## Requirements
 
