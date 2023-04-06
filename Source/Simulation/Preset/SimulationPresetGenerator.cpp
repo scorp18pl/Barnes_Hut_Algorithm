@@ -1,6 +1,6 @@
 #include <Simulation/Preset/SimulationPresetGenerator.h>
 #include <Simulation/Preset/SimulationPresetManager.h>
-#include <Universal/Math/Random.h>
+#include <Universal/Math/Random/Generator.h>
 #include <cmath>
 
 static constexpr size_t DefaultEntityCount = 3000LU;
@@ -9,6 +9,7 @@ static constexpr float DefaultBigRadius = 1.0e5f;
 
 static SimulationPreset GenerateDefaultPreset()
 {
+    Uni::Math::Rand::Generator generator;
     SimulationPreset simulationPreset;
 
     simulationPreset.m_entities.reserve(DefaultEntityCount);
@@ -20,15 +21,14 @@ static SimulationPreset GenerateDefaultPreset()
     for (size_t i = 1LU; i < DefaultEntityCount; ++i)
     {
         const Uni::Math::Vector2f Position =
-            Uni::Math::Vector2f::CreateRandomUnitVector() *
-            Uni::Math::Rand::CreateRandomUniformFloat(
+            Uni::Math::Vector2f::CreateRandomUnitVector(generator) *
+            generator.GenerateInRange(
                 DefaultBigRadius, DefaultBigRadius * 1.0e2f);
 
         const Uni::Math::Vector2f Velocity =
-            Uni::Math::Vector2f::CreateRandomUnitVector() * V;
+            Uni::Math::Vector2f::CreateRandomUnitVector(generator) * V;
 
-        const float Radius =
-            Uni::Math::Rand::CreateRandomUniformFloat(1.0f, 1.0e3f);
+        const float Radius = generator.GenerateInRange(1.0f, 1.0e3f);
 
         simulationPreset.m_entities.emplace_back(Position, Velocity, Radius);
     }

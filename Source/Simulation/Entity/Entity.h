@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <Simulation/Entity/Tracker.h>
-#include <Universal/Math/Vector2.h>
+#include <Universal/Math/Vector2f.h>
 #include <cassert>
 #include <iostream>
 #include <string>
