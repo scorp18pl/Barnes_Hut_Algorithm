@@ -10,6 +10,10 @@ It also implements a few tools for visualising the inner workings of the algorit
 
 ![](static/preview.gif)
 
+## Preview Video
+
+You can find the preview video of this project at [this link](https://www.youtube.com/watch?v=C6pCYyDt_3o&ab_channel=Scorp).
+
 ## Controls
 
 * Camera movement
