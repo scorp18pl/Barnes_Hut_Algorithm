@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <Universal/Math/Vector2f.h>
+#include <Universal/Math/Vector/Vector2f.h>
 #include <iostream>
 
 class Tracker

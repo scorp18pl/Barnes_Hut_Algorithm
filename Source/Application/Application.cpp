@@ -16,8 +16,8 @@ Application& Application::GetApplication()
 Application::Application()
     : m_window{ sf::VideoMode(1920, 1080), "Simulation", sf::Style::Fullscreen }
     , m_simulation{ Uni::Math::BoundingBox2D{
-          Uni::Math::Vector2f::CreateFromFloat(-DefaultMapSize / 2.0f),
-          Uni::Math::Vector2f::CreateFromFloat(DefaultMapSize),
+          Uni::Math::Vector2f{ -DefaultMapSize / 2.0f },
+          Uni::Math::Vector2f{ DefaultMapSize },
       } }
     , m_currentState{ State::Simulating }
 {
@@ -136,9 +136,8 @@ void Application::Update()
 
 void Application::OnImGuiUpdate()
 {
-    ImGui::SetNextWindowSize({ 600.0f, 800.0f });
+    ImGui::SetNextWindowSize({ 300.0f, 400.0f });
     ImGui::Begin("Barnes Hut Simulation");
-    ImGui::SetWindowFontScale(2.0f);
 
     if (m_currentState == State::Simulating)
     {

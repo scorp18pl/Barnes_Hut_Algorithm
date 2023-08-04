@@ -1,6 +1,7 @@
 #include <Simulation/Preset/SimulationPresetGenerator.h>
 #include <Simulation/Preset/SimulationPresetManager.h>
 #include <Universal/Math/Random/Generator.h>
+#include <Universal/Math/Vector/Vector2f.h>
 #include <cmath>
 
 static constexpr size_t DefaultEntityCount = 3000LU;

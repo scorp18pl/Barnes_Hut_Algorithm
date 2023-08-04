@@ -1,6 +1,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Universal/Math/Vector2f.h>
+#include <Universal/Math/Vector/Vector2f.h>
 
 namespace Utils
 {

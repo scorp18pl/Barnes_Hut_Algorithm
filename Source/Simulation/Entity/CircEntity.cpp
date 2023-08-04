@@ -27,7 +27,7 @@ CircEntity::CircEntity(
     radius = std::max(0.0f, radius);
 
     m_shape.setPosition(Utils::CreateSfVectorFromUniVector(
-        position - Uni::Math::Vector2f::CreateFromFloat(radius)));
+        position - Uni::Math::Vector2f{ radius }));
     m_shape.setRadius(radius);
     m_shape.setFillColor(color);
     m_font = m_font;
@@ -67,7 +67,7 @@ void CircEntity::Update()
 void CircEntity::UpdateShapePosition()
 {
     const Uni::Math::Vector2f shapePosition =
-        m_position - Uni::Math::Vector2f::CreateFromFloat(m_shape.getRadius());
+        m_position - Uni::Math::Vector2f{ m_shape.getRadius() };
     m_shape.setPosition(Utils::CreateSfVectorFromUniVector(shapePosition));
 }
 
